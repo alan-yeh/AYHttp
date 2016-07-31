@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '7.0'
 
   s.source_files = 'AYHttp/Classes/**/*'
-  s.public_header_files = 'Pod/Classes/*.h'
+  s.public_header_files = 'AYHttp/Classes/*.h'
 
   s.dependency 'AFNetworking', '~> 3.0.0'
   s.dependency 'AYPromise', '~> 1.0.0'

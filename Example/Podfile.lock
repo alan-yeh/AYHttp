@@ -15,7 +15,7 @@ PODS:
   - AFNetworking/UIKit (3.0.4):
     - AFNetworking/NSURLSession
   - AYFile (1.0.0)
-  - AYHttp (0.1.0):
+  - AYHttp (1.0.0):
     - AFNetworking (~> 3.0.0)
     - AYFile (~> 1.0.0)
     - AYPromise (~> 1.0.0)
@@ -26,14 +26,14 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   AYHttp:
-    :path: "../"
+    :path: ../
 
 SPEC CHECKSUMS:
   AFNetworking: a0075feb321559dc78d9d85b55d11caa19eabb93
   AYFile: 66e8881d89cf93b31c81a6a1d5cda2a52d55f644
-  AYHttp: 951c0bf8f1684c8c76f1e9bff5c495ea6db2dcdd
+  AYHttp: e2f56a58e89c0d7901b2b27cb7cff3f387fd0116
   AYPromise: 716ef1bbe2c6db978ceb3b1f2d8484f25df2cf12
 
 PODFILE CHECKSUM: 5f4b0f32be6d9afceab2a5771005fa23528ffccb
 
-COCOAPODS: 1.0.1
+COCOAPODS: 1.0.0

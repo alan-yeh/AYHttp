@@ -49,7 +49,7 @@ typedef NS_ENUM(NSInteger, AYNetworkStatus) {
 - (AYPromise<AYHttpRequest *> *)downloadRequest:(AYHttpRequest *)request;
 
 - (AYPromise<AYFile *> *)suspendRequest:(AYHttpRequest *)request;
-- (AYPromise<AYHttpResponse *> *)resumeWithConfig:(AYFile *)configFile forRequest:(AYHttpRequest **)request ;
+- (AYPromise<AYHttpResponse *> *)resumeWithConfig:(AYFile *)configFile forRequest:(AYHttpRequest *_Nullable*_Nullable)request;
 - (void)cancelRequest:(AYHttpRequest *)request;
 @end
 

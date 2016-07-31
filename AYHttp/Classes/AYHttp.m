@@ -39,7 +39,7 @@
 
 + (void)load{
     [[AFNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
-        [AYHttp client].currentNetworkStatus = status;
+        [AYHttp client].currentNetworkStatus = (AYNetworkStatus)status;
         if ([[AYHttp client].delegate respondsToSelector:@selector(reachabilityChanged:)]) {
             [[AYHttp client].delegate reachabilityChanged:[AYHttp client].currentNetworkStatus];
         }
@@ -226,23 +226,24 @@
         if (request) {
             *request = downloadRequest;
         }
-        NSURLSessionDownloadTask *task = [self.session downloadTaskWithResumeData:configFile.data
-                                                                         progress:^(NSProgress * _Nonnull downloadProgress) {
-                                                                             if (downloadRequest.progress) {
-                                                                                 downloadRequest.progress(downloadProgress);
-                                                                             }
-                                                                         }
-                                                                      destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
-                                                                          return targetPath;
-                                                                      }
-                                                                completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
-                                                                    if (error) {
-                                                                        resolve(NSErrorMake(error, @"下载失败"));
-                                                                    }else{
-                                                                        AYHttpResponse *response = [[AYHttpResponse alloc] init];
-                                                                        resolve(response);
-                                                                    }
-                                                                }];
+        downloadRequest.task = [self.session downloadTaskWithResumeData:configFile.data
+                                                               progress:^(NSProgress * _Nonnull downloadProgress) {
+                                                                   if (downloadRequest.progress) {
+                                                                       downloadRequest.progress(downloadProgress);
+                                                                   }
+                                                               }
+                                                            destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
+                                                                return targetPath;
+                                                            }
+                                                      completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
+                                                          if (error) {
+                                                              resolve(NSErrorMake(error, @"下载失败"));
+                                                          }else{
+                                                              AYHttpResponse *response = [[AYHttpResponse alloc] init];
+                                                              resolve(response);
+                                                          }
+                                                      }];
+        [downloadRequest.task resume];
     });
 }
 

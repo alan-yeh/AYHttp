@@ -15,13 +15,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface AYHttpRequest ()
 @property (nonatomic, retain) NSMutableDictionary<NSString *, id> *parameters;
-@property (nonatomic, retain) __kindof NSURLSessionDataTask *task;
+@property (nonatomic, retain) __kindof NSURLSessionTask *task;
 @end
 
 @interface AYHttpResponse ()
 @property (nonatomic, retain) AYHttpRequest *request;
 
-- (instancetype)initWithRequest:(AYHttpRequest *)request andData:(NSData *)responseData andFile:(NSURL *)responseFile;
+- (instancetype)initWithRequest:(AYHttpRequest *)request andData:(nullable NSData *)responseData andFile:(nullable NSURL *)responseFile;
 @end
 
 @interface AFHTTPSessionManager ()
