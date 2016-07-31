@@ -13,6 +13,7 @@ before_install:
 
 install:
 - bundle install
+- pod repo update
 - pod install --project-directory=Example
 
 script:
