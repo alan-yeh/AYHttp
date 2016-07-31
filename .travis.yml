@@ -14,7 +14,7 @@ before_install:
 install:
 - bundle install
 - pod repo update
-- pod install --project-directory=Example
+- pod install --repo-update --silent --project-directory=Example
 
 script:
 - bundle exec rake pod:lint --quiet
