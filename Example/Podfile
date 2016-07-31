@@ -1,0 +1,9 @@
+use_frameworks!
+
+target 'AYHttp_Example' do
+  pod 'AYHttp', :path => '../'
+
+  target 'AYHttp_Tests' do
+    inherit! :search_paths
+  end
+end
