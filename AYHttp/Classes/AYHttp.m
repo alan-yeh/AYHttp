@@ -19,7 +19,9 @@
 @property (nonatomic, retain) NSMutableDictionary<id, AFHTTPRequestSerializer *> *requestSerializers;
 @end
 
-@implementation AYHttp
+@implementation AYHttp{
+    NSMutableDictionary<NSString *, NSString *> *_headers;
+}
 - (instancetype)_init{
     return [super init];
 }
@@ -32,6 +34,7 @@
         _instance.session = [[AFHTTPSessionManager alloc] initWithBaseURL:nil];
         _instance.session.completionQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         _instance.session.securityPolicy.allowInvalidCertificates = YES;
+        _instance.session.securityPolicy.validatesDomainName = NO;
         _instance.session.responseSerializer = [AFHTTPResponseSerializer serializer];
     });
     return _instance;
@@ -85,26 +88,72 @@
 
 @end
 
+@implementation AYHttp (Cookies)
+- (NSMutableDictionary<NSString *,NSString *> *)headers{
+    return _headers ?: (_headers = [NSMutableDictionary new]);
+}
+
+- (void)clearHeaders{
+    _headers = nil;
+}
+
+- (NSString *)headerValueForKey:(NSString *)key{
+    return [_headers objectForKey:key];
+}
+
+- (void)setHeaderValue:(NSString *)value forKey:(NSString *)key{
+    [self.headers setValue:value forKey:key];
+}
+
+- (void)setHeaderWithProperties:(NSDictionary<NSString *,NSString *> *)properties{
+    [self.headers setValuesForKeysWithDictionary:properties];
+}
+
+
+- (NSDictionary<NSString *,NSString *> *)cookies{
+    NSMutableDictionary *cookiePairs = [NSMutableDictionary new];
+    NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for (NSHTTPCookie *cookie in cookieStore.cookies) {
+        [cookiePairs addEntriesFromDictionary:cookie.properties];
+    }
+    return cookiePairs.copy;
+}
+
+- (void)clearCookies{
+    NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for (NSHTTPCookie *cookie in cookieStore.cookies) {
+        [cookieStore deleteCookie:cookie];
+    }
+}
+
+- (id)cookieValueForKey:(NSString *)key{
+    NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for (NSHTTPCookie *cookie in cookieStore.cookies) {
+        id result = [cookie.properties objectForKey:key];
+        if (result != nil) {
+            return result;
+        }
+    }
+    return nil;
+}
+
+- (void)setCookieValue:(id)value forKey:(NSString *)key{
+    [self setCookieWithProperties:@{key: value}];
+}
+
+- (void)setCookieWithProperties:(NSDictionary<NSString *,id> *)properties{
+    NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:properties];
+    [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookie];
+}
+@end
+
 @implementation AYHttp (Operation)
 
 - (AYPromise<NSMutableURLRequest *> *)parseRequest:(AYHttpRequest *)request{
     return AYPromiseWith(^id{
         NSError *error;
-        NSMutableURLRequest *urlRequest = [self.session.requestSerializer requestWithMethod:request.method
-                                                URLString:request.URLString
-                                               parameters:request.params
-                                                    error:&error];
-        if (error) {
-            return NSErrorMake(error, @"can not parse <AYHttpReqeust %p> to NSURLRequest", request);
-        }else{
-            return urlRequest;
-        }
-    });
-}
-
-
-- (AYPromise<AYHttpRequest *> *)executeRequest:(AYHttpRequest *)request{
-    return AYPromiseWithResolve(^(AYResolve  _Nonnull resolve) {
+        NSMutableURLRequest *urlRequest = nil;
+        
         NSDictionary<NSString *, id> *params = request.params;
         
         NSMutableDictionary<NSString *, id> *parameters = [NSMutableDictionary new];
@@ -118,61 +167,96 @@
                 [parameters setObject:param forKey:key];
             }
         }
+        NSSet *multipartMethods = [NSSet setWithObjects:@"POST", @"PUT", nil];
         
+        NSAssert(!(fileParams.count && ![multipartMethods containsObject:request.method]), @"request method %@ can not append multipart data", request.method);
+        
+        if (fileParams.count) {
+            urlRequest = [self.session.requestSerializer multipartFormRequestWithMethod:request.method
+                                                                              URLString:request.URLString
+                                                                             parameters:parameters
+                                                              constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+                                                                  for (NSString *key in fileParams) {
+                                                                      AYHttpFileParam *param = fileParams[key];
+                                                                      [formData appendPartWithFileData:param.data
+                                                                                                  name:key
+                                                                                              fileName:param.filename
+                                                                                              mimeType:@"application/octet-stream"];
+                                                                  }
+                                                              }
+                                                                                  error:&error];
+        }else{
+            urlRequest = [self.session.requestSerializer requestWithMethod:request.method
+                                                                 URLString:request.URLString
+                                                                parameters:request.params
+                                                                     error:&error];
+        }
+        
+        if (error) {
+            return NSErrorMake(error, @"can not parse <AYHttpReqeust %p> to NSURLRequest", request);
+        }
+        
+        // process cookie header
+        NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+        NSArray<NSHTTPCookie *> *sharedCookies = cookieStorage.cookies;
+        
+        NSMutableArray<NSHTTPCookie *> *cookies = [NSMutableArray new];
+        if (sharedCookies.count > 0) {
+            [cookies addObjectsFromArray:sharedCookies];
+        }
+        
+        if (request.cookies.count > 0) {
+            NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:request.cookies];
+            [cookies addObject:cookie];
+        }
+        
+        //process other header
+        NSDictionary<NSString *, NSString *> *headerProperties = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
+        
+        NSMutableDictionary<NSString *, NSString *> *headers = [NSMutableDictionary new];
+        [headers addEntriesFromDictionary:headerProperties];
+        [headers addEntriesFromDictionary:self.headers];
+        [headers addEntriesFromDictionary:request.headers];
+        
+        
+        for (NSString *key in headers) {
+            [urlRequest setValue:headers[key] forHTTPHeaderField:key];
+        }
+        
+        return urlRequest;
+    });
+}
+
+
+- (AYPromise<AYHttpRequest *> *)executeRequest:(AYHttpRequest *)request{
+    return AYPromiseWith(^{
         AFHTTPRequestSerializer *serializer = [self serializerWithEncoding:request.encoding];
         serializer.timeoutInterval = self.timeoutInterval;
         self.session.requestSerializer = serializer;
-        
-        if (fileParams.count < 1) {
-            request.task = [self.session dataTaskWithHTTPMethod:request.method
-                                                      URLString:request.URLString
-                                                     parameters:parameters
-                                                 uploadProgress:nil
-                                               downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
-                                                   if (request.progress) {
-                                                       request.progress(downloadProgress);
-                                                   }
-                                               }
-                                                        success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
-                                                            request.task = task;
-                                                            resolve([[AYHttpResponse alloc] initWithRequest:request
-                                                                                                    andData:responseObject
-                                                                                                    andFile:nil]);
-                                                        }
-                                                        failure:^(NSURLSessionDataTask * _Nonnull task, NSError * _Nonnull error) {
-                                                            resolve(NSErrorMake(error, @"访问网络失败"));
-                                                        }];
-            [request.task resume];
-            
-        }else{
-            NSAssert([request.method isEqualToString:@"POST"], @"only POST method can upload");
-            self.session.requestSerializer = [AFHTTPRequestSerializer serializer];
-            request.task = [self.session POST:request.URLString
-                                   parameters:parameters
-                    constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-                        for (NSString *key in fileParams) {
-                            AYHttpFileParam *param = fileParams[key];
-                            [formData appendPartWithFileData:param.data
-                                                        name:key
-                                                    fileName:param.filename
-                                                    mimeType:@"application/octet-stream"];
-                        }
-                        
-                    }
-                                     progress:^(NSProgress * _Nonnull downloadProgress) {
-                                         if (request.progress) {
-                                             request.progress(downloadProgress);
-                                         }
-                                     }
-                                      success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                                          request.task = task;
-                                          resolve([[AYHttpResponse alloc] initWithRequest:request andData:responseObject andFile:nil]);
-                                      }
-                                      failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                                          resolve(NSErrorMake(error, @"访问网络失败"));
-                                      }];
-        }
-        
+    }).then(^{
+        return [self parseRequest:request];
+    }).thenPromise(^(NSMutableURLRequest *urlRequest, AYResolve resolve){
+        request.task = [self.session dataTaskWithRequest:urlRequest
+                                          uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
+                                              if (request.uploadProgress) {
+                                                  request.uploadProgress(uploadProgress);
+                                              }
+                                          }
+                                        downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+                                            if (request.downloadProgress) {
+                                                request.downloadProgress(downloadProgress);
+                                            }
+                                        }
+                                       completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+                                           if (error) {
+                                               resolve(NSErrorMake(error, @"访问网络失败"));
+                                           }else{
+                                               resolve([[AYHttpResponse alloc] initWithRequest:request
+                                                                                       andData:responseObject
+                                                                                       andFile:nil]);
+                                           }
+                                       }];
+        [request.task resume];
     });
 }
 
@@ -186,8 +270,8 @@
     }).thenPromise(^(NSMutableURLRequest *URLRequest, AYResolve resolve){
         request.task = [self.session downloadTaskWithRequest:URLRequest
                                                     progress:^(NSProgress * _Nonnull downloadProgress) {
-                                                        if (request.progress) {
-                                                            request.progress(downloadProgress);
+                                                        if (request.downloadProgress) {
+                                                            request.downloadProgress(downloadProgress);
                                                         }
                                                     }
                                                  destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
@@ -208,7 +292,7 @@
     });
 }
 
-- (AYPromise<AYFile *> *)suspendRequest:(AYHttpRequest *)request{
+- (AYPromise<AYFile *> *)suspendDownloadRequest:(AYHttpRequest *)request{
     return AYPromiseWithResolve(^(AYResolve  _Nonnull resolve) {
         NSURLSessionDownloadTask *task = request.task;
         if (![task isKindOfClass:[NSURLSessionDownloadTask class]]) {
@@ -220,16 +304,18 @@
     });
 }
 
-- (AYPromise<AYHttpResponse *> *)resumeWithConfig:(AYFile *)configFile forRequest:(AYHttpRequest *__autoreleasing *)request{
-    return AYPromiseWithResolve(^(AYResolve  _Nonnull resolve) {
+- (AYPromise<AYHttpResponse *> *)resumeDownloadRequest:(AYHttpRequest *__autoreleasing  _Nullable *)request withConfig:(AYFile *)configFile{
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    
+    AYPromise<AYHttpResponse *> *promise = AYPromiseAsyncWithResolve(^(AYResolve  _Nonnull resolve) {
         AYHttpRequest *downloadRequest = [AYHttpRequest new];
         if (request) {
             *request = downloadRequest;
         }
         downloadRequest.task = [self.session downloadTaskWithResumeData:configFile.data
                                                                progress:^(NSProgress * _Nonnull downloadProgress) {
-                                                                   if (downloadRequest.progress) {
-                                                                       downloadRequest.progress(downloadProgress);
+                                                                   if (downloadRequest.downloadProgress) {
+                                                                       downloadRequest.downloadProgress(downloadProgress);
                                                                    }
                                                                }
                                                             destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
@@ -244,7 +330,10 @@
                                                           }
                                                       }];
         [downloadRequest.task resume];
+        dispatch_semaphore_signal(semaphore);
     });
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    return promise;
 }
 
 - (void)cancelRequest:(AYHttpRequest *)request{

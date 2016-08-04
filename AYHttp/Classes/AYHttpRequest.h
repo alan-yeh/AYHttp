@@ -29,21 +29,28 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)removeParamForKey:(NSString *)key;
 - (id)paramForKey:(NSString *)key;
 
-@property (nonatomic, copy) void (^progress)(NSProgress *);
-- (void)setProgress:(void(^)(NSProgress *progress))progress;
+/** download progress callback*/
+@property (nonatomic, copy) void (^downloadProgress)(NSProgress *);
+- (void)setDownloadProgress:(void(^)(NSProgress *progress))progress;
 
+/** upload progress callback*/
+@property (nonatomic, copy) void (^uploadProgress)(NSProgress *);
+- (void)setUploadProgress:(void (^)(NSProgress *progress))progress;
 @end
 
-//@interface AYHttpRequest (Header)
-//@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *headers;
-//@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *cookies;
-//
-//- (void)setHeaderValue:(NSString *)value forKey:(NSString *)key;
-//- (void)headerValueForKey:(NSString *)key;
-//
-//- (void)setCookieValue:(NSString *)cookieValue forKey:(NSString *)key;
-//- (void)cookieValueForKey:(NSString *)key;
-//@end
+/**
+ *  Headers and cookies are just use for current request.
+ */
+@interface AYHttpRequest (Header)
+@property (nonatomic, retain, readonly) NSMutableDictionary<NSString *, NSString *> *headers;
+@property (nonatomic, retain, readonly) NSMutableDictionary<NSString *, NSString *> *cookies;
+
+- (void)setHeaderValue:(NSString *)value forKey:(NSString *)key;
+- (NSString *)headerValueForKey:(NSString *)key;
+
+- (void)setCookieValue:(NSString *)cookieValue forKey:(NSString *)key;
+- (NSString *)cookieValueForKey:(NSString *)key;
+@end
 
 
 @interface AYHttpFileParam : NSObject

@@ -17,24 +17,24 @@
 
 @implementation Tests
 
-- (void)setUp
-{
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-}
-
-- (void)tearDown
-{
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
-}
-
-- (void)testGET{
+//- (void)setUp
+//{
+//    [super setUp];
+//    // Put setup code here. This method is called before the invocation of each test method in the class.
+//}
+//
+//- (void)tearDown
+//{
+//    // Put teardown code here. This method is called after the invocation of each test method in the class.
+//    [super tearDown];
+//}
+//
+//- (void)testGET{
 //    id ex = [self expectationWithDescription:@""];
 //    
 //    [AYHttp.client executeRequest:[AYHttpRequest GET:@"http://api.fir.im/apps/latest/576107d2e75e2d717d000014"
 //                                          withParams:@{
-//                                                       @"api_token": @"xxxx"
+//                                                       @"api_token": @"f156b688dd49f664d85a5c5eac6597d4"
 //                                                       }]]
 //    .then(^(AYHttpResponse *response){
 //        XCTAssert(response.responseJson);
@@ -45,9 +45,9 @@
 //    });
 //    
 //    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
-}
-
-- (void)testGETError{
+//}
+//
+//- (void)testGETError{
 //    id ex = [self expectationWithDescription:@""];
 //    
 //    [AYHttp.client executeRequest:[AYHttpRequest GET:@"http://api.fir.im/apps/latest/576107d2e75e2d717d000014"
@@ -61,16 +61,16 @@
 //    });
 //    
 //    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
-}
-
-- (void)testPOST{
+//}
+//
+//- (void)testPOST{
 //    id ex = [self expectationWithDescription:@""];
 //    
 //    [AYHttp.client executeRequest:[AYHttpRequest POST:@"http://api.fir.im/apps"
 //                                           withParams:@{
 //                                                        @"type": @"ios",
 //                                                        @"bundle_id": @"cn.yerl.aa",
-//                                                        @"api_token": @"xxxx"
+//                                                        @"api_token": @"f156b688dd49f664d85a5c5eac6597d4"
 //                                                        }]]
 //    .then(^(AYHttpResponse *response){
 //        XCTAssert(response.responseJson);
@@ -84,9 +84,9 @@
 //    });
 //    
 //    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
-}
-
-- (void)testPOSTError{
+//}
+//
+//- (void)testPOSTError{
 //    id ex = [self expectationWithDescription:@""];
 //    
 //    [AYHttp.client executeRequest:[AYHttpRequest POST:@"http://api.fir.im/apps"
@@ -105,18 +105,18 @@
 //    });
 //    
 //    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
-}
-
-- (void)testUPLOAD{
+//}
+//
+//- (void)testUPLOAD{
 //    id ex = [self expectationWithDescription:@""];
 //    
-//    NSData *data = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"music" ofType:@"mp3"]];
+//    NSData *data = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"aaa" ofType:@"zip"]];
 //    
 //    AYHttpRequest *uploadRequest = [AYHttpRequest POST:@"http://10.0.1.2:8080/MDDisk/file"
 //                                            withParams:@{
-//                                                         @"mp3": [AYHttpFileParam paramWithData:data andName:@"music.mp3"]
+//                                                         @"mp3": [AYHttpFileParam paramWithData:data andName:@"aaa.zip"]
 //                                                         }];
-//    [uploadRequest setProgress:^(NSProgress * _Nonnull progress) {
+//    [uploadRequest setUploadProgress:^(NSProgress * _Nonnull progress) {
 //        NSLog(@"%@", progress);
 //    }];
 //    
@@ -134,13 +134,13 @@
 //    });
 //    
 //    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
-}
-
-- (void)testDOWNLOAD{
+//}
+//
+//- (void)testDOWNLOAD{
 //    id ex = [self expectationWithDescription:@""];
 //    
 //    AYHttpRequest *downloadReq = [AYHttpRequest GET:@"https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.1.tar.gz" withParams:nil];
-//    [downloadReq setProgress:^(NSProgress * _Nonnull progress) {
+//    [downloadReq setDownloadProgress:^(NSProgress * _Nonnull progress) {
 //        NSLog(@"%@", progress);
 //    }];
 //    
@@ -157,30 +157,85 @@
 //        [ex fulfill];
 //    });
 //    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
-}
-
-- (void)testResumeDownload{
+//}
+//
+//- (void)testResumeDownload{
 //    id ex = [self expectationWithDescription:@""];
 //    
-//    AYHttpRequest *downloadReq = [AYHttpRequest GET:@"http://10.0.1.2:8080/MDDisk/file/2016-07-29/cabbf287-d062-47dc-910c-df5c26cf5744.mp3" withParams:nil];
-//    [downloadReq setProgress:^(NSProgress * _Nonnull progress) {
-//        NSLog(@"%@", progress);
+//    AYHttpRequest *downloadReq = [AYHttpRequest GET:@"https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.1.tar.gz" withParams:nil];
+//    [downloadReq setDownloadProgress:^(NSProgress * _Nonnull progress) {
+//        NSLog(@"first download: %@", @(progress.fractionCompleted));
 //    }];
 //    
-//    [AYHttp.client downloadRequest:downloadReq]
-//    .then(^(AYHttpResponse *response){
-//        NSLog(@"%@", response.responseFile);
-//        XCTAssert(response.responseFile);
+//    //first download
+//    [AYHttp.client downloadRequest:downloadReq].then(^(AYHttpResponse *response){
+//        XCTAssert(NO, @"should be fail");
 //    }).catch(^(NSError *error){
 //        NSData *data = [[error.userInfo objectForKey:AYPromiseInternalErrorsKey] userInfo][@"com.alamofire.serialization.response.error.data"];
 //        NSString *tempStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 //        NSLog(tempStr, nil);
-//        XCTAssert(NO, @"should be success");
+//    });
+//    
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        [[AYHttp client] suspendDownloadRequest:downloadReq].then(^(AYFile *cache){
+//            XCTAssert(cache != nil);
+//            return cache;
+//        }).thenDelay(5, ^(AYFile *cache){
+//            AYHttpRequest *request = nil;
+//            [[AYHttp client] resumeDownloadRequest:&request withConfig:cache].then(^(AYHttpResponse *response){
+//                
+//            }).catch(^(NSError *error){
+//                NSData *data = [[error.userInfo objectForKey:AYPromiseInternalErrorsKey] userInfo][@"com.alamofire.serialization.response.error.data"];
+//                NSString *tempStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+//                NSLog(tempStr, nil);
+//                XCTAssert(NO, @"should be success");
+//            }).always(^{
+//                [ex fulfill];
+//            });
+//            
+//            XCTAssert(request != nil);
+//            
+//            [request setDownloadProgress:^(NSProgress * _Nonnull progress) {
+//                NSLog(@"resume: %@", @(progress.fractionCompleted));
+//            }];
+//        });
+//    });
+//    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
+//}
+//
+//- (void)testHeader{
+//    id ex = [self expectationWithDescription:@""];
+//    
+//    AYHttpRequest *request = [AYHttpRequest GET:@"http://codesync.cn/api/v3/groups" withParams:nil];
+//    [request setHeaderValue:@"FtpjWQwDSEyU8YpnVsmw" forKey:@"PRIVATE-TOKEN"];
+//    
+//    [[AYHttp client] executeRequest:request].then(^(AYHttpResponse *resonse){
+//        NSLog(@"%@", resonse.responseJson);
+//    }).catch(^(NSError *error){
+//        XCTAssert(NO);
 //    }).always(^{
 //        [ex fulfill];
 //    });
+//    
 //    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
-}
+//}
+//
+//- (void)testSharedHeader{
+//    id ex = [self expectationWithDescription:@""];
+//    
+//    [[AYHttp client] setHeaderValue:@"FtpjWQwDSEyU8YpnVsmw" forKey:@"PRIVATE-TOKEN"];
+//    
+//    AYHttpRequest *request = [AYHttpRequest GET:@"http://codesync.cn/api/v3/groups" withParams:nil];
+//    [[AYHttp client] executeRequest:request].then(^(AYHttpResponse *resonse){
+//        NSLog(@"%@", resonse.responseJson);
+//    }).catch(^(NSError *error){
+//        XCTAssert(NO);
+//    }).always(^{
+//        [ex fulfill];
+//    });
+//    
+//    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
+//}
 
 @end
 

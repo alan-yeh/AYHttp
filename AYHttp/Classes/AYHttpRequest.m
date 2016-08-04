@@ -13,7 +13,11 @@
 #import "AYHttpRequest.h"
 #import "AYHttp_Private.h"
 
-@implementation AYHttpRequest
+@implementation AYHttpRequest{
+    NSMutableDictionary<NSString *, NSString *> *_headers;
+    NSMutableDictionary<NSString *, NSString *> *_cookies;
+}
+
 - (instancetype)init{
     if (self = [super init]) {
         self.encoding = NSUTF8StringEncoding;
@@ -59,6 +63,37 @@ CONSTRUCTOR(POST)
     return self.parameters[key];
 }
 
+- (void)setMethod:(NSString *)method{
+    _method = method.uppercaseString.copy;
+}
+
+@end
+
+@implementation AYHttpRequest (Header)
+- (NSMutableDictionary<NSString *,NSString *> *)headers{
+    return _headers ?: (_headers = [NSMutableDictionary new]);
+}
+
+- (NSMutableDictionary<NSString *,NSString *> *)cookies{
+    return _cookies ?: (_cookies = [NSMutableDictionary new]);
+}
+
+- (void)setHeaderValue:(NSString *)value forKey:(NSString *)key{
+    [self.headers setObject:value forKey:key];
+}
+
+- (NSString *)headerValueForKey:(NSString *)key{
+    return [self.headers objectForKey:key];
+}
+
+- (void)setCookieValue:(NSString *)cookieValue forKey:(NSString *)key{
+    [self.cookies setObject:cookieValue forKey:key];
+}
+
+- (NSString *)cookieValueForKey:(NSString *)key{
+    return [self.cookies objectForKey:key];
+}
+
 @end
 
 @implementation AYHttpFileParam
@@ -71,6 +106,7 @@ CONSTRUCTOR(POST)
 }
 
 - (instancetype)initWithData:(NSData *)data andName:(NSString *)fileName{
+    NSParameterAssert(data != nil && fileName.length > 0 && data.length >0);
     if (self = [super init]) {
         self.data = data;
         self.filename = fileName;

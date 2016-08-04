@@ -35,11 +35,25 @@ typedef NS_ENUM(NSInteger, AYNetworkStatus) {
 @property (nonatomic, weak) id<AYHttpDelegate> delegate;
 @property (nonatomic, assign, readonly) AYNetworkStatus currentNetworkStatus;
 
-#pragma mark - Cookies
-//@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *cookies;
-//- (void)clearCookies;
-
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
+@end
+
+/**
+ *  Headers and cookies are shared with all request
+ */
+@interface AYHttp (Header)
+@property (readonly) NSDictionary<NSString *, NSString *> *headers;
+- (void)clearHeaders;
+- (NSString *)headerValueForKey:(NSString *)key;
+- (void)setHeaderValue:(NSString *)value forKey:(NSString *)key;
+- (void)setHeaderWithProperties:(NSDictionary<NSString *, NSString *> *)properties;
+
+
+@property (readonly) NSDictionary<NSString *, id> *cookies;
+- (void)clearCookies;
+- (id)cookieValueForKey:(NSString *)key;
+- (void)setCookieValue:(id)value forKey:(NSString *)key;
+- (void)setCookieWithProperties:(NSDictionary<NSString *, id> *)properties;
 @end
 
 @interface AYHttp (Operation)
@@ -48,9 +62,12 @@ typedef NS_ENUM(NSInteger, AYNetworkStatus) {
 - (AYPromise<AYHttpRequest *> *)executeRequest:(AYHttpRequest *)request;
 - (AYPromise<AYHttpRequest *> *)downloadRequest:(AYHttpRequest *)request;
 
-- (AYPromise<AYFile *> *)suspendRequest:(AYHttpRequest *)request;
-- (AYPromise<AYHttpResponse *> *)resumeWithConfig:(AYFile *)configFile forRequest:(AYHttpRequest *_Nullable*_Nullable)request;
 - (void)cancelRequest:(AYHttpRequest *)request;
+
+// Suspend download request, then return download config file
+// use config file to resume the download request
+- (AYPromise<AYFile *> *)suspendDownloadRequest:(AYHttpRequest *)request;
+- (AYPromise<AYHttpResponse *> *)resumeDownloadRequest:(AYHttpRequest *_Nullable*_Nullable)request withConfig:(AYFile *)configFile;
 @end
 
 @protocol AYHttpDelegate <NSObject>
