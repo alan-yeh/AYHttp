@@ -220,22 +220,22 @@
 //    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
 //}
 //
-//- (void)testSharedHeader{
-//    id ex = [self expectationWithDescription:@""];
-//    
-//    [[AYHttp client] setHeaderValue:@"FtpjWQwDSEyU8YpnVsmw" forKey:@"PRIVATE-TOKEN"];
-//    
-//    AYHttpRequest *request = [AYHttpRequest GET:@"http://codesync.cn/api/v3/groups" withParams:nil];
-//    [[AYHttp client] executeRequest:request].then(^(AYHttpResponse *resonse){
-//        NSLog(@"%@", resonse.responseJson);
-//    }).catch(^(NSError *error){
-//        XCTAssert(NO);
-//    }).always(^{
-//        [ex fulfill];
-//    });
-//    
-//    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
-//}
+- (void)testSharedHeader{
+    id ex = [self expectationWithDescription:@""];
+    
+    [[AYHttp client] setHeaderValue:@"FtpjWQwDSEyU8YpnVsmw" forKey:@"PRIVATE-TOKEN"];
+    
+    AYHttpRequest *request = [AYHttpRequest GET:@"http://codesync.cn/api/v3/groups" withParams:nil];
+    [[AYHttp client] executeRequest:request].then(^(AYHttpResponse *resonse){
+        NSLog(@"%@", resonse.responseJson);
+    }).catch(^(NSError *error){
+        XCTAssert(NO);
+    }).always(^{
+        [ex fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
+}
 
 @end
 

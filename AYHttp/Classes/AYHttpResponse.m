@@ -15,11 +15,11 @@
     AYFile *_responseFile;
 }
 
-- (instancetype)initWithRequest:(AYHttpRequest *)request andData:(NSData *)responseData andFile:(NSURL *)responseFile{
+- (instancetype)initWithRequest:(AYHttpRequest *)request andData:(NSData *)responseData andFile:(AYFile *)responseFile{
     if (self = [super init]) {
         self.request = request;
         _responseData = responseData;
-        _responseFile = [AYFile fileWithURL:responseFile];
+        _responseFile = responseFile;
     }
     return self;
 }

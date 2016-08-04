@@ -296,7 +296,7 @@
                                                
                                                AYHttpResponse *httpResponse = [[AYHttpResponse alloc] initWithRequest:request
                                                                                                               andData:nil
-                                                                                                              andFile:filePath];
+                                                                                                              andFile:[AYFile fileWithURL:filePath]];
                                                if ([self.delegate respondsToSelector:@selector(client:hasReturn:)]) {
                                                    AYPromise *promise = [self.delegate client:self hasReturn:httpResponse];
                                                    if (promise != nil) {
