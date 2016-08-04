@@ -148,6 +148,9 @@
 @end
 
 @implementation AYHttp (Operation)
+- (NSSet<NSString *> *)multipartMethods{
+    return [NSSet setWithObjects:@"POST", @"PUT", nil];
+}
 
 - (AYPromise<NSMutableURLRequest *> *)parseRequest:(AYHttpRequest *)request{
     return AYPromiseWith(^id{
@@ -167,9 +170,8 @@
                 [parameters setObject:param forKey:key];
             }
         }
-        NSSet *multipartMethods = [NSSet setWithObjects:@"POST", @"PUT", nil];
         
-        NSAssert(!(fileParams.count && ![multipartMethods containsObject:request.method]), @"request method %@ can not append multipart data", request.method);
+        NSAssert(!(fileParams.count && ![self.multipartMethods containsObject:request.method]), @"request method %@ can not append multipart data", request.method);
         
         if (fileParams.count) {
             urlRequest = [self.session.requestSerializer multipartFormRequestWithMethod:request.method
