@@ -1,8 +1,8 @@
 //
 //  AYHttpResponse.m
-//  Pods
+//  AYHttp
 //
-//  Created by PoiSon on 16/7/22.
+//  Created by Alan Yeh on 16/7/22.
 //
 //
 

@@ -1,8 +1,8 @@
 //
 //  AYHttp.m
-//  Pods
+//  AYHttp
 //
-//  Created by PoiSon on 16/7/22.
+//  Created by Alan Yeh on 16/7/22.
 //
 //
 
@@ -104,7 +104,7 @@
 
 
 - (AYPromise<AYHttpRequest *> *)executeRequest:(AYHttpRequest *)request{
-    return AYPromiseWithResolve(^(PSResolve  _Nonnull resolve) {
+    return AYPromiseWithResolve(^(AYResolve  _Nonnull resolve) {
         NSDictionary<NSString *, id> *params = request.params;
         
         NSMutableDictionary<NSString *, id> *parameters = [NSMutableDictionary new];
@@ -183,7 +183,7 @@
         self.session.requestSerializer = serializer;
     }).then(^{
         return [self parseRequest:request];
-    }).thenPromise(^(NSMutableURLRequest *URLRequest, PSResolve resolve){
+    }).thenPromise(^(NSMutableURLRequest *URLRequest, AYResolve resolve){
         request.task = [self.session downloadTaskWithRequest:URLRequest
                                                     progress:^(NSProgress * _Nonnull downloadProgress) {
                                                         if (request.progress) {
@@ -209,7 +209,7 @@
 }
 
 - (AYPromise<AYFile *> *)suspendRequest:(AYHttpRequest *)request{
-    return AYPromiseWithResolve(^(PSResolve  _Nonnull resolve) {
+    return AYPromiseWithResolve(^(AYResolve  _Nonnull resolve) {
         NSURLSessionDownloadTask *task = request.task;
         if (![task isKindOfClass:[NSURLSessionDownloadTask class]]) {
             resolve(NSErrorMake(nil, @"Only download request can suspend."));
@@ -221,7 +221,7 @@
 }
 
 - (AYPromise<AYHttpResponse *> *)resumeWithConfig:(AYFile *)configFile forRequest:(AYHttpRequest *__autoreleasing *)request{
-    return AYPromiseWithResolve(^(PSResolve  _Nonnull resolve) {
+    return AYPromiseWithResolve(^(AYResolve  _Nonnull resolve) {
         AYHttpRequest *downloadRequest = [AYHttpRequest new];
         if (request) {
             *request = downloadRequest;

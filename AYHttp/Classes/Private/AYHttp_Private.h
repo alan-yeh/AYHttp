@@ -1,8 +1,8 @@
 //
 //  AYHttpRequest_Private.h
-//  Pods
+//  AYHttp
 //
-//  Created by PoiSon on 16/7/25.
+//  Created by Alan Yeh on 16/7/25.
 //
 //
 

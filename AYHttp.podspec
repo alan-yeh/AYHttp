@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'AYHttp'
-  s.version          = '1.0.1'
+  s.version          = '1.0.2'
   s.summary          = 'Promise style HTTP client base on AFNetworking.'
 
   s.homepage         = 'https://github.com/alan-yeh/AYHttp'
@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
   s.source_files = 'AYHttp/Classes/**/*'
   s.public_header_files = 'AYHttp/Classes/*.h'
 
-  s.dependency 'AFNetworking', '~> 3.1.0'
-  s.dependency 'AYPromise', '~> 1.1.0'
-  s.dependency 'AYFile', '~> 1.0.0'
+  s.dependency 'AFNetworking'
+  s.dependency 'AYPromise'
+  s.dependency 'AYFile'
 end
