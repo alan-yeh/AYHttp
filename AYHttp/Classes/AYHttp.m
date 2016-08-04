@@ -250,12 +250,21 @@
                                             }
                                         }
                                        completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+                                           AYHttpResponse *httpResponse = [[AYHttpResponse alloc] initWithRequest:request
+                                                                                                          andData:responseObject
+                                                                                                          andFile:nil];
+                                           if ([self.delegate respondsToSelector:@selector(client:hasReturn:)]) {
+                                               AYPromise *promise = [self.delegate client:self hasReturn:httpResponse];
+                                               if (promise != nil) {
+                                                   resolve(promise);
+                                                   return;
+                                               }
+                                           }
+                                           
                                            if (error) {
                                                resolve(NSErrorMake(error, @"访问网络失败"));
                                            }else{
-                                               resolve([[AYHttpResponse alloc] initWithRequest:request
-                                                                                       andData:responseObject
-                                                                                       andFile:nil]);
+                                               resolve(httpResponse);
                                            }
                                        }];
         [request.task resume];
@@ -284,10 +293,22 @@
                                                      }
                                                  }
                                            completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
+                                               
+                                               AYHttpResponse *httpResponse = [[AYHttpResponse alloc] initWithRequest:request
+                                                                                                              andData:nil
+                                                                                                              andFile:filePath];
+                                               if ([self.delegate respondsToSelector:@selector(client:hasReturn:)]) {
+                                                   AYPromise *promise = [self.delegate client:self hasReturn:httpResponse];
+                                                   if (promise != nil) {
+                                                       resolve(promise);
+                                                       return;
+                                                   }
+                                               }
+                                               
                                                if (error) {
                                                    resolve(NSErrorMake(error, @"访问网络失败"));
                                                }else{
-                                                   resolve([[AYHttpResponse alloc] initWithRequest:request andData:nil andFile:filePath]);
+                                                   resolve(httpResponse);
                                                }
                                            }];
         [request.task resume];
