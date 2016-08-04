@@ -21,6 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)GET:(NSString *)URLString withParams:(nullable NSDictionary<NSString *, id> *)params;
 + (instancetype)POST:(NSString *)URLString withParams:(nullable NSDictionary<NSString *, id> *)params;
++ (instancetype)PUT:(NSString *)URLString withParams:(nullable NSDictionary<NSString *, id> *)params;
++ (instancetype)DELETE:(NSString *)URLString withParams:(nullable NSDictionary<NSString *, id> *)params;
 
 - (instancetype)initWithMethod:(NSString *)method URL:(NSString *)URLString andParams:(nullable NSDictionary<NSString *, id> *)params;
 

@@ -30,6 +30,8 @@
 }
 CONSTRUCTOR(GET)
 CONSTRUCTOR(POST)
+CONSTRUCTOR(PUT)
+CONSTRUCTOR(DELETE)
 #undef CONSTRUCTOR
 
 - (instancetype)initWithMethod:(NSString *)method URL:(NSString *)URLString andParams:(NSDictionary<NSString *,id> *)params{
