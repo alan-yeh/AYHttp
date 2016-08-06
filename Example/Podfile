@@ -2,6 +2,7 @@ use_frameworks!
 
 target 'AYHttp_Example' do
   pod 'AYHttp', :path => '../'
+  pod 'SVProgressHUD'
 
   target 'AYHttp_Tests' do
     inherit! :search_paths

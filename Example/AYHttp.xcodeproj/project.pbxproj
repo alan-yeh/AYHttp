@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1D07E0661D4B253700AAF96E /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1D07E0651D4B253700AAF96E /* Launch Screen.storyboard */; };
+		1D2AD08A1D55C96E00994389 /* DBBook.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D2AD0891D55C96E00994389 /* DBBook.m */; };
+		1D2AD08E1D55C9BD00994389 /* DBServices.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D2AD08D1D55C9BD00994389 /* DBServices.m */; };
 		3E910F94F59AB03797964EE7 /* Pods_AYHttp_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D5332D8D71A67D30227CB8C /* Pods_AYHttp_Example.framework */; };
 		5DD13ACBCFE880E2C76D9921 /* Pods_AYHttp_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA531FE2D784A1512971D691 /* Pods_AYHttp_Tests.framework */; };
 		6003F58E195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
@@ -38,6 +40,10 @@
 
 /* Begin PBXFileReference section */
 		1D07E0651D4B253700AAF96E /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		1D2AD0881D55C96E00994389 /* DBBook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DBBook.h; path = Models/DBBook.h; sourceTree = "<group>"; };
+		1D2AD0891D55C96E00994389 /* DBBook.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DBBook.m; path = Models/DBBook.m; sourceTree = "<group>"; };
+		1D2AD08C1D55C9BD00994389 /* DBServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DBServices.h; path = Services/DBServices.h; sourceTree = "<group>"; };
+		1D2AD08D1D55C9BD00994389 /* DBServices.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DBServices.m; path = Services/DBServices.m; sourceTree = "<group>"; };
 		34B337F088098834D43335BB /* Pods-AYHttp_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AYHttp_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-AYHttp_Tests/Pods-AYHttp_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		3D5332D8D71A67D30227CB8C /* Pods_AYHttp_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AYHttp_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58A195388D20070C39A /* AYHttp_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AYHttp_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -95,6 +101,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1D2AD0871D55C95000994389 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				1D2AD0881D55C96E00994389 /* DBBook.h */,
+				1D2AD0891D55C96E00994389 /* DBBook.m */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		1D2AD08B1D55C9A600994389 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				1D2AD08C1D55C9BD00994389 /* DBServices.h */,
+				1D2AD08D1D55C9BD00994389 /* DBServices.m */,
+			);
+			name = Services;
+			sourceTree = "<group>";
+		};
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
@@ -132,6 +156,8 @@
 		6003F593195388D20070C39A /* Example for AYHttp */ = {
 			isa = PBXGroup;
 			children = (
+				1D2AD08B1D55C9A600994389 /* Services */,
+				1D2AD0871D55C95000994389 /* Models */,
 				6003F59C195388D20070C39A /* AYAppDelegate.h */,
 				6003F59D195388D20070C39A /* AYAppDelegate.m */,
 				6003F5A5195388D20070C39A /* AYViewController.h */,
@@ -490,9 +516,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1D2AD08A1D55C96E00994389 /* DBBook.m in Sources */,
 				6003F59E195388D20070C39A /* AYAppDelegate.m in Sources */,
 				6003F5A7195388D20070C39A /* AYViewController.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
+				1D2AD08E1D55C9BD00994389 /* DBServices.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
