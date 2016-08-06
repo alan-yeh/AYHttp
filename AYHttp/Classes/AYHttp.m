@@ -156,8 +156,9 @@
     NSParameterAssert(request.method.length);
     NSParameterAssert(request.URLString.length);
     
-    NSURL *url = [NSURL URLWithString:request.URLString];
-    NSAssert(url, @"URLString, property of AYHttpRequest is not legal");
+    NSString *URLString = [[NSURL URLWithString:request.URLString relativeToURL:self.baseURL] absoluteString];
+
+    NSAssert(URLString.length, @"URLString, property of AYHttpRequest is not valid");
     
     return AYPromiseWith(^id{
         NSError *error;
@@ -181,7 +182,7 @@
         
         if (fileParams.count) {
             urlRequest = [self.session.requestSerializer multipartFormRequestWithMethod:request.method
-                                                                              URLString:request.URLString
+                                                                              URLString:URLString
                                                                              parameters:parameters
                                                               constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
                                                                   for (NSString *key in fileParams) {
@@ -195,7 +196,7 @@
                                                                                   error:&error];
         }else{
             urlRequest = [self.session.requestSerializer requestWithMethod:request.method
-                                                                 URLString:request.URLString
+                                                                 URLString:URLString
                                                                 parameters:request.params
                                                                      error:&error];
         }

@@ -11,9 +11,10 @@
 
 @implementation DBServices
 - (AYPromise<DBBook *> *)getBookByID:(NSString *)bookID{
-    return [[AYHttp client] executeRequest:[AYHttpRequest GET:@"https://api.douban.com/v2/book/{bookID}" withParams:@{
-                                                                                                                      @"bookID": bookID
-                                                                                                                      }].restful]
+    [AYHttp client].baseURL = [NSURL URLWithString:@"https://api.douban.com"];
+    return [[AYHttp client] executeRequest:[AYHttpRequest GET:@"v2/book/{bookID}" withParams:@{
+                                                                                               @"bookID": bookID
+                                                                                               }].restful]
     .then(^(AYHttpResponse *response){
         return [[DBBook alloc] initWithJsonObject:response.responseJson];
     });
