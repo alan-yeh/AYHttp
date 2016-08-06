@@ -43,6 +43,10 @@ CONSTRUCTOR(DELETE)
     return self;
 }
 
+- (NSString *)description{
+    return [NSString stringWithFormat:@"<AFHttpRequest %p>:{\n    URL: %@\n    method: %@\n    params: %@\n    header: %@\n}", self, self.URLString, self.method, self.params, self.headers];
+}
+
 - (NSMutableDictionary<NSString *,id> *)parameters{
     return _parameters ? _parameters : (_parameters = [NSMutableDictionary new]);
 }
@@ -69,6 +73,16 @@ CONSTRUCTOR(DELETE)
     _method = method.uppercaseString.copy;
 }
 
+- (AYHttpRequest *)restful{
+    for (NSString *key in self.parameters) {
+        NSString *replacement = [NSString stringWithFormat:@"{%@}", key];
+        if ([self.URLString containsString:replacement]) {
+            self.URLString = [self.URLString stringByReplacingOccurrencesOfString:replacement withString:self.params[key]];
+            [self.parameters removeObjectForKey:key];
+        }
+    }
+    return self;
+}
 @end
 
 @implementation AYHttpRequest (Header)

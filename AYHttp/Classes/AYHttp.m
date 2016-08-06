@@ -153,6 +153,12 @@
 }
 
 - (AYPromise<NSMutableURLRequest *> *)parseRequest:(AYHttpRequest *)request{
+    NSParameterAssert(request.method.length);
+    NSParameterAssert(request.URLString.length);
+    
+    NSURL *url = [NSURL URLWithString:request.URLString];
+    NSAssert(url, @"URLString, property of AYHttpRequest is not legal");
+    
     return AYPromiseWith(^id{
         NSError *error;
         NSMutableURLRequest *urlRequest = nil;

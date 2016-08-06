@@ -38,6 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** upload progress callback*/
 @property (nonatomic, copy) void (^uploadProgress)(NSProgress *);
 - (void)setUploadProgress:(void (^)(NSProgress *progress))progress;
+
+- (AYHttpRequest *)restful;
 @end
 
 /**
