@@ -32,13 +32,14 @@
 //- (void)testGET{
 //    id ex = [self expectationWithDescription:@""];
 //    
-//    [AYHttp.client executeRequest:[AYHttpRequest GET:@"http://api.fir.im/apps/latest/576107d2e75e2d717d000014"
+//    [AYHttp.client executeRequest:[AYHttpRequest GET:@"https://api.github.com/search/repositories"
 //                                          withParams:@{
-//                                                       @"api_token": @"f156b688dd49f664d85a5c5eac6597d4"
+//                                                       @"q": @"AYHttp"
 //                                                       }]]
 //    .then(^(AYHttpResponse *response){
 //        XCTAssert(response.responseJson);
 //    }).catch(^(NSError *error){
+//        
 //        XCTAssert(NO, @"should be success");
 //    }).always(^{
 //        [ex fulfill];
