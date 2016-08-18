@@ -238,5 +238,22 @@
 //    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
 //}
 
+//- (void)testRedirect{
+//    id ex = [self expectationWithDescription:@""];
+//    
+//    AYHttpRequest *request = [AYHttpRequest GET:@"http://192.168.0.185:9081/mobilework/login/login" withParams:@{@"j_username" : @"admin" ,  @"j_password" : @"11"}];
+//    [[AYHttp client] executeRequest:request].then(^(AYHttpResponse *response){
+//        NSLog(@"%@", response.responseString);
+//    }).catch(^(NSError *error){
+//        XCTAssert(NO);
+//    }).always(^{
+//        [ex fulfill];
+//    });
+//    
+//    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
+//}
+
+
+
 @end
 

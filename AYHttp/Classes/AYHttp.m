@@ -161,7 +161,6 @@
     NSAssert(URLString.length, @"URLString, property of AYHttpRequest is not valid");
     
     return AYPromiseWith(^id{
-        NSError *error;
         NSMutableURLRequest *urlRequest = nil;
         
         NSDictionary<NSString *, id> *params = request.params;
@@ -178,8 +177,11 @@
             }
         }
         
-        NSAssert(!(fileParams.count && ![self.multipartMethods containsObject:request.method]), @"request method %@ can not append multipart data", request.method);
+        if (!(!(fileParams.count && ![self.multipartMethods containsObject:request.method]))) {
+            return NSErrorMake(nil, @"request method %@ can not append multipart data", request.method);
+        }
         
+        NSError *error;
         if (fileParams.count) {
             urlRequest = [self.session.requestSerializer multipartFormRequestWithMethod:request.method
                                                                               URLString:URLString
@@ -209,15 +211,24 @@
         NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
         NSArray<NSHTTPCookie *> *sharedCookies = cookieStorage.cookies;
         
+        
+        NSString *domain = [NSURL URLWithString:URLString].host;
+        
         NSMutableArray<NSHTTPCookie *> *cookies = [NSMutableArray new];
         if (sharedCookies.count > 0) {
-            [cookies addObjectsFromArray:sharedCookies];
+            for (NSHTTPCookie *cookie in cookies) {
+                if ([cookie.domain isEqualToString:domain]) {
+                    [cookies addObject:cookie];
+                }
+            }
         }
         
         if (request.cookies.count > 0) {
             NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:request.cookies];
             [cookies addObject:cookie];
         }
+        
+        
         
         //process other header
         NSDictionary<NSString *, NSString *> *headerProperties = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
@@ -242,9 +253,9 @@
         AFHTTPRequestSerializer *serializer = [self serializerWithEncoding:request.encoding];
         serializer.timeoutInterval = self.timeoutInterval;
         self.session.requestSerializer = serializer;
-    }).then(^{
-        return [self parseRequest:request];
-    }).thenPromise(^(NSMutableURLRequest *urlRequest, AYResolve resolve){
+        return request;
+    }).then(NSInvocationMake(self, @selector(parseRequest:)))
+    .thenPromise(^(NSMutableURLRequest *urlRequest, AYResolve resolve){
         request.task = [self.session dataTaskWithRequest:urlRequest
                                           uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
                                               if (request.uploadProgress) {

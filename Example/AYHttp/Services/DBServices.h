@@ -15,4 +15,5 @@
  *  通过bookID获取豆瓣书的详情
  */
 - (AYPromise<DBBook *> *)getBookByID:(NSString *)bookID;
+
 @end
