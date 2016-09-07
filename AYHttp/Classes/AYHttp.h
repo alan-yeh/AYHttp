@@ -57,7 +57,7 @@ typedef NS_ENUM(NSInteger, AYNetworkStatus) {
 @end
 
 @interface AYHttp (Operation)
-- (NSURLRequest *)parseRequest:(AYHttpRequest *)request;
+- (AYPromise<NSMutableURLRequest *> *)parseRequest:(AYHttpRequest *)request;
 
 - (AYPromise<AYHttpRequest *> *)executeRequest:(AYHttpRequest *)request;
 - (AYPromise<AYHttpRequest *> *)downloadRequest:(AYHttpRequest *)request;
