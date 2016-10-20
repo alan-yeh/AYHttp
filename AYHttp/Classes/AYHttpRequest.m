@@ -74,13 +74,17 @@ CONSTRUCTOR(DELETE)
 }
 
 - (AYHttpRequest *)restful{
+    NSMutableArray<NSString *> *removedKeys = [NSMutableArray new];
+    
     for (NSString *key in self.parameters) {
         NSString *replacement = [NSString stringWithFormat:@"{%@}", key];
         if ([self.URLString containsString:replacement]) {
             self.URLString = [self.URLString stringByReplacingOccurrencesOfString:replacement withString:self.params[key]];
-            [self.parameters removeObjectForKey:key];
+            [removedKeys addObject:key];
         }
     }
+    
+    [self.parameters removeObjectsForKeys:removedKeys];
     return self;
 }
 @end
