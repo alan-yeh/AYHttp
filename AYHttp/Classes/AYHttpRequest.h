@@ -39,8 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) void (^uploadProgress)(NSProgress *);
 - (void)setUploadProgress:(void (^)(NSProgress *progress))progress;
 
-- (AYHttpRequest *)parseUrlParam;/**< parse url param. Parsed params will be removed. */
-- (AYHttpRequest *)parseUrlParam:(NSDictionary<NSString *, id> *)urlParams; /**< parse url param with given params. */
+- (instancetype)parseUrlParam; /**< parse url param. Parsed params will be removed. */
+- (instancetype)parseUrlParam:(NSDictionary<NSString *, id> *)urlParams; /**< parse url param with given params. */
 @end
 
 /**
