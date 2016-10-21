@@ -73,18 +73,29 @@ CONSTRUCTOR(DELETE)
     _method = method.uppercaseString.copy;
 }
 
-- (AYHttpRequest *)restful{
+- (AYHttpRequest *)parseUrlParam{
     NSMutableArray<NSString *> *removedKeys = [NSMutableArray new];
     
     for (NSString *key in self.parameters) {
         NSString *replacement = [NSString stringWithFormat:@"{%@}", key];
         if ([self.URLString containsString:replacement]) {
-            self.URLString = [self.URLString stringByReplacingOccurrencesOfString:replacement withString:self.params[key]];
+            self.URLString = [self.URLString stringByReplacingOccurrencesOfString:replacement withString:[NSString stringWithFormat:self.parameters[key]]];
             [removedKeys addObject:key];
         }
     }
     
     [self.parameters removeObjectsForKeys:removedKeys];
+    return self;
+}
+
+- (AYHttpRequest *)parseUrlParam:(NSDictionary<NSString *,id> *)urlParams{
+    for (NSString *key in urlParams) {
+        NSString *replacement = [NSString stringWithFormat:@"{%@}", key];
+        if ([self.URLString containsString:replacement]) {
+            self.URLString = [self.URLString stringByReplacingOccurrencesOfString:replacement withString:[NSString stringWithFormat:@"%@", urlParams[key]]];
+        }
+    }
+    
     return self;
 }
 @end
