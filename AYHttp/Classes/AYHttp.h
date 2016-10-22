@@ -15,6 +15,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 FOUNDATION_EXPORT NSString const *AYHttpReachabilityChangedNotification;
+FOUNDATION_EXPORT NSString const *AYHttpErrorResponseKey;
 
 @protocol AYHttpDelegate;
 
@@ -35,7 +36,7 @@ typedef NS_ENUM(NSInteger, AYNetworkStatus) {
 @property (nonatomic, weak) id<AYHttpDelegate> delegate;
 @property (nonatomic, assign, readonly) AYNetworkStatus currentNetworkStatus;
 
-@property (nonatomic, assign) NSTimeInterval timeoutInterval;
+@property (nonatomic, assign) NSTimeInterval timeoutInterval; /**< default 10s */
 @end
 
 /**

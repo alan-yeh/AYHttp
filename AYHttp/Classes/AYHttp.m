@@ -11,6 +11,9 @@
 #import <AYFile/AYFile.h>
 #import "AYHttp_Private.h"
 
+NSString const *AYHttpReachabilityChangedNotification = @"AYHttpReachabilityChangedNotification";
+NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
+
 @interface AYHttp ()
 @property (nonatomic, assign) AYNetworkStatus currentNetworkStatus;
 
@@ -31,6 +34,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _instance = [[AYHttp alloc] _init];
+        _instance.timeoutInterval = 10;
         _instance.session = [[AFHTTPSessionManager alloc] initWithBaseURL:nil];
         _instance.session.completionQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         _instance.session.securityPolicy.allowInvalidCertificates = YES;
@@ -59,14 +63,6 @@
     }
     
     self.session.baseURL = url;
-}
-
-- (NSTimeInterval)timeoutInterval{
-    return self.session.requestSerializer.timeoutInterval;
-}
-
-- (void)setTimeoutInterval:(NSTimeInterval)timeoutInterval{
-    self.session.requestSerializer.timeoutInterval = timeoutInterval;
 }
 
 - (AFHTTPRequestSerializer *)serializerWithEncoding:(NSStringEncoding)encoding{
@@ -159,7 +155,7 @@
     [request parseUrlParam];
     
     NSString *URLString = [[NSURL URLWithString:request.URLString relativeToURL:self.baseURL] absoluteString];
-
+    
     NSAssert(URLString.length, @"URLString is not valid");
     
     return AYPromiseWith(^id{
@@ -282,7 +278,7 @@
                                            }
                                            
                                            if (error) {
-                                               resolve(NSErrorMake(error, @"访问网络失败"));
+                                               resolve(NSErrorWithUserInfo(@{AYHttpErrorResponseKey: httpResponse}, @"网络请求失败"));
                                            }else{
                                                resolve(httpResponse);
                                            }
@@ -296,9 +292,9 @@
         AFHTTPRequestSerializer *serializer = [self serializerWithEncoding:request.encoding];
         serializer.timeoutInterval = self.timeoutInterval;
         self.session.requestSerializer = serializer;
-    }).then(^{
-        return [self parseRequest:request];
-    }).thenPromise(^(NSMutableURLRequest *URLRequest, AYResolve resolve){
+        return request;
+    }).then(NSInvocationMake(self, @selector(parseRequest:)))
+    .thenPromise(^(NSMutableURLRequest *URLRequest, AYResolve resolve){
         request.task = [self.session downloadTaskWithRequest:URLRequest
                                                     progress:^(NSProgress * _Nonnull downloadProgress) {
                                                         if (request.downloadProgress) {
@@ -326,7 +322,7 @@
                                                }
                                                
                                                if (error) {
-                                                   resolve(NSErrorMake(error, @"访问网络失败"));
+                                                   resolve(NSErrorWithUserInfo(@{AYHttpErrorResponseKey: httpResponse}, @"网络请求失败"));
                                                }else{
                                                    resolve(httpResponse);
                                                }
@@ -351,7 +347,7 @@
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     
     AYPromise<AYHttpResponse *> *promise = AYPromiseAsyncWithResolve(^(AYResolve  _Nonnull resolve) {
-        AYHttpRequest *downloadRequest = [AYHttpRequest new];
+        __block AYHttpRequest *downloadRequest = [AYHttpRequest new];
         if (request) {
             *request = downloadRequest;
         }
@@ -365,11 +361,14 @@
                                                                 return targetPath;
                                                             }
                                                       completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
+                                                          AYHttpResponse *httpResponse = [[AYHttpResponse alloc] initWithRequest:downloadRequest
+                                                                                                                         andData:nil
+                                                                                                                         andFile:[AYFile fileWithURL:filePath]];
                                                           if (error) {
-                                                              resolve(NSErrorMake(error, @"下载失败"));
+                                                              resolve(NSErrorWithUserInfo(@{AYHttpErrorResponseKey: httpResponse,
+                                                                                            AYPromiseInternalErrorsKey: error}, @"下载失败"));
                                                           }else{
-                                                              AYHttpResponse *response = [[AYHttpResponse alloc] init];
-                                                              resolve(response);
+                                                              resolve(httpResponse);
                                                           }
                                                       }];
         [downloadRequest.task resume];

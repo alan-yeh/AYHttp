@@ -46,6 +46,10 @@
 }
 
 - (id)responseJson{
+    if (!_responseData && !_responseFile) {
+        return nil;
+    }
+    
     if (_responseData) {
         NSData *data = _responseData;
         if (self.request.encoding != NSUTF8StringEncoding) {
@@ -60,6 +64,10 @@
 }
 
 - (NSString *)responseString{
+    if (!_responseData && !_responseFile) {
+        return nil;
+    }
+    
     if (_responseData) {
         return [[NSString alloc] initWithData:_responseData encoding:self.request.encoding];
     }else{
@@ -69,6 +77,10 @@
 }
 
 - (AYFile *)responseFile{
+    if (!_responseData && !_responseFile) {
+        return nil;
+    }
+    
     if (_responseFile) {
         return _responseFile;
     }else{
