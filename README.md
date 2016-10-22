@@ -31,6 +31,21 @@ pod "AYHttp"
     });
 ```
 
+### URL Param
+　　Restful风格的api常常使用URL param，AYHttp对此类URL做了处理。
+
+```objective-c
+    [[AYHttp client] executeRequest:[AYHttpRequest GET:@"https://api.douban.com/v2/book/{bookID}" withParams:@{@"bookID": bookID}]]
+    .then(^(AYHttpResponse *response){
+        //请求成功
+        NSDictionary *result = response.responseJson;
+        //其它业务
+    }).catch(^(NSError *error){
+        NSLog(error.localizedDescription);
+    });
+```
+　　AYHttp会自动将url中的`{xxxx}`替换成params中的对应key的参数值，同时将params对应的key移除。
+
 ### 文件上传
 ```objective-c
     NSData *data = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"aaa" ofType:@"zip"]];
