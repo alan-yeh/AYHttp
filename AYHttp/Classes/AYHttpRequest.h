@@ -19,10 +19,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString *URLString;
 @property (nonatomic, assign) NSStringEncoding encoding;/**< default is UTF8Encoding */
 
-+ (instancetype)GET:(NSString *)URLString withParams:(nullable NSDictionary<NSString *, id> *)params;
-+ (instancetype)POST:(NSString *)URLString withParams:(nullable NSDictionary<NSString *, id> *)params;
-+ (instancetype)PUT:(NSString *)URLString withParams:(nullable NSDictionary<NSString *, id> *)params;
-+ (instancetype)DELETE:(NSString *)URLString withParams:(nullable NSDictionary<NSString *, id> *)params;
++ (instancetype)GET:(NSString *)URLString;
++ (instancetype)POST:(NSString *)URL;
++ (instancetype)PUT:(NSString *)URL;
++ (instancetype)DELETE:(NSString *)URL;
++ (instancetype)HEAD:(NSString *)URL;
+
++ (instancetype)GET:(NSString *)URL withParams:(nullable NSDictionary<NSString *, id> *)params;/**< URL can be NSURL, AYRestURL, NSString */
++ (instancetype)POST:(NSString *)URL withParams:(nullable NSDictionary<NSString *, id> *)params;/**< URL can be NSURL, AYRestURL, NSString */
++ (instancetype)PUT:(NSString *)URL withParams:(nullable NSDictionary<NSString *, id> *)params;/**< URL can be NSURL, AYRestURL, NSString */
++ (instancetype)DELETE:(NSString *)URL withParams:(nullable NSDictionary<NSString *, id> *)params;/**< URL can be NSURL, AYRestURL, NSString */
++ (instancetype)HEAD:(NSString *)URL withParams:(nullable NSDictionary<NSString *, id> *)params;/**< URL can be NSURL, AYRestURL, NSString */
 
 - (instancetype)initWithMethod:(NSString *)method URL:(NSString *)URLString andParams:(nullable NSDictionary<NSString *, id> *)params;
 
@@ -39,8 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) void (^uploadProgress)(NSProgress *);
 - (void)setUploadProgress:(void (^)(NSProgress *progress))progress;
 
-- (instancetype)parseUrlParam; /**< parse url param. Parsed params will be removed. */
-- (instancetype)parseUrlParam:(NSDictionary<NSString *, id> *)urlParams; /**< parse url param with given params. */
 @end
 
 /**

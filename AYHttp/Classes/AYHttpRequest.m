@@ -24,6 +24,20 @@
     }
     return self;
 }
+
+//无参构造函数
+#define CONSTRUCTOR(METHOD) \
++ (instancetype)METHOD:(NSString *)URLString{ \
+    return [[self alloc] initWithMethod:@#METHOD URL:URLString andParams:nil]; \
+}
+CONSTRUCTOR(GET)
+CONSTRUCTOR(POST)
+CONSTRUCTOR(PUT)
+CONSTRUCTOR(DELETE)
+CONSTRUCTOR(HEAD)
+#undef CONSTRUCTOR
+
+//有参构造函数
 #define CONSTRUCTOR(METHOD) \
 + (instancetype)METHOD:(NSString *)URLString withParams:(NSDictionary<NSString *,id> *)params{ \
     return [[self alloc] initWithMethod:@#METHOD URL:URLString andParams:params]; \
@@ -32,7 +46,9 @@ CONSTRUCTOR(GET)
 CONSTRUCTOR(POST)
 CONSTRUCTOR(PUT)
 CONSTRUCTOR(DELETE)
+CONSTRUCTOR(HEAD)
 #undef CONSTRUCTOR
+
 
 - (instancetype)initWithMethod:(NSString *)method URL:(NSString *)URLString andParams:(NSDictionary<NSString *,id> *)params{
     if (self = [self init]) {
@@ -74,6 +90,10 @@ CONSTRUCTOR(DELETE)
 }
 
 - (instancetype)parseUrlParam{
+    if ([self.URLString rangeOfString:@"{"].location == NSNotFound) {
+        return self;
+    }
+    
     NSMutableArray<NSString *> *removedKeys = [NSMutableArray new];
     
     for (NSString *key in self.parameters) {
@@ -88,16 +108,6 @@ CONSTRUCTOR(DELETE)
     return self;
 }
 
-- (instancetype)parseUrlParam:(NSDictionary<NSString *,id> *)urlParams{
-    for (NSString *key in urlParams) {
-        NSString *replacement = [NSString stringWithFormat:@"{%@}", key];
-        if ([self.URLString containsString:replacement]) {
-            self.URLString = [self.URLString stringByReplacingOccurrencesOfString:replacement withString:[NSString stringWithFormat:@"%@", urlParams[key]]];
-        }
-    }
-    
-    return self;
-}
 @end
 
 @implementation AYHttpRequest (Header)

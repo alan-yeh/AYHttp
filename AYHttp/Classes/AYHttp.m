@@ -156,9 +156,11 @@
     NSParameterAssert(request.method.length);
     NSParameterAssert(request.URLString.length);
     
+    [request parseUrlParam];
+    
     NSString *URLString = [[NSURL URLWithString:request.URLString relativeToURL:self.baseURL] absoluteString];
 
-    NSAssert(URLString.length, @"URLString, property of AYHttpRequest is not valid");
+    NSAssert(URLString.length, @"URLString is not valid");
     
     return AYPromiseWith(^id{
         NSMutableURLRequest *urlRequest = nil;
