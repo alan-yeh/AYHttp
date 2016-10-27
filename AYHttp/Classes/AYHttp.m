@@ -214,7 +214,7 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
         
         NSMutableArray<NSHTTPCookie *> *cookies = [NSMutableArray new];
         if (sharedCookies.count > 0) {
-            for (NSHTTPCookie *cookie in cookies) {
+            for (NSHTTPCookie *cookie in sharedCookies) {
                 if ([cookie.domain isEqualToString:domain]) {
                     [cookies addObject:cookie];
                 }
