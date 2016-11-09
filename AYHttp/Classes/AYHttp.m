@@ -383,10 +383,12 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
     if ([task isKindOfClass:[NSURLSessionDownloadTask class]]) {
         //remove download cache
         [task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-            NSDictionary *config = [NSJSONSerialization JSONObjectWithData:resumeData options:kNilOptions error:nil];
-            if (config) {
-                AYFile *cacheFile = [[AYFile tmp] child:config[@"NSURLSessionResumeInfoTempFileName"]];
-                [cacheFile delete];
+            if (resumeData.length) {
+                NSDictionary *config = [NSJSONSerialization JSONObjectWithData:resumeData options:kNilOptions error:nil];
+                if (config) {
+                    AYFile *cacheFile = [[AYFile tmp] child:config[@"NSURLSessionResumeInfoTempFileName"]];
+                    [cacheFile delete];
+                }
             }
         }];
     }else{
