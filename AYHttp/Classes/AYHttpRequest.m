@@ -9,6 +9,8 @@
 
 #import <AYPromise/AYPromise.h>
 #import <AYFile/AYFile.h>
+#import <AYCategory/AYCategory.h>
+#import <AYQuery/AYQuery.h>
 
 #import "AYHttpRequest.h"
 #import "AYHttp_Private.h"
@@ -96,13 +98,13 @@ CONSTRUCTOR(HEAD)
     
     NSMutableArray<NSString *> *removedKeys = [NSMutableArray new];
     
-    for (NSString *key in self.parameters) {
-        NSString *replacement = [NSString stringWithFormat:@"{%@}", key];
+    self.parameters.query.each(^(NSString *key){
+        NSString *replacement = NSStringWithFormat(@"{%@}", key);
         if ([self.URLString containsString:replacement]) {
-            self.URLString = [self.URLString stringByReplacingOccurrencesOfString:replacement withString:[NSString stringWithFormat:@"%@", self.parameters[key]]];
+            self.URLString = [self.URLString stringByReplacingOccurrencesOfString:replacement withString:[self.parameters[key] description]];
             [removedKeys addObject:key];
         }
-    }
+    });
     
     [self.parameters removeObjectsForKeys:removedKeys];
     return self;

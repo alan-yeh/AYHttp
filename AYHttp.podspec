@@ -1,5 +1,5 @@
 #
-# Be sure to run `pod lib lint AYHttp.podspec' to ensure this is a
+# Be sure to run 'pod lib lint AYHttp.podspec' to ensure this is a
 # valid spec before submitting.
 #
 # Any lines starting with a # are optional, but their use is encouraged
@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'AYHttp'
-  s.version          = '1.1.3'
+  s.version          = '1.2.0'
   s.summary          = 'Promise style HTTP client base on AFNetworking.'
 
   s.homepage         = 'https://github.com/alan-yeh/AYHttp'
@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   s.author           = { 'Alan Yeh' => 'alan@yerl.cn' }
   s.source           = { :git => 'https://github.com/alan-yeh/AYHttp.git', :tag => s.version.to_s }
 
-  s.ios.deployment_target = '7.0'
+  s.ios.deployment_target = '8.0'
 
   s.source_files = 'AYHttp/Classes/**/*'
   s.public_header_files = 'AYHttp/Classes/*.h'
@@ -24,4 +24,6 @@ Pod::Spec.new do |s|
   s.dependency 'AFNetworking'
   s.dependency 'AYPromise'
   s.dependency 'AYFile'
+  s.dependency 'AYQuery'
+  s.dependency 'AYCategory'
 end

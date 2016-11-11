@@ -26,6 +26,7 @@
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
+		E7B5040F1DD59794000EDD0D /* aaa.zip in Resources */ = {isa = PBXBuildFile; fileRef = E7B5040E1DD59794000EDD0D /* aaa.zip */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		B523AA2F9C5AF27CC124CC10 /* AYHttp.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = AYHttp.podspec; path = ../AYHttp.podspec; sourceTree = "<group>"; };
 		DA3940AA13D1CF28AC4EB130 /* Pods-AYHttp_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AYHttp_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-AYHttp_Example/Pods-AYHttp_Example.release.xcconfig"; sourceTree = "<group>"; };
 		DA531FE2D784A1512971D691 /* Pods_AYHttp_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AYHttp_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E7B5040E1DD59794000EDD0D /* aaa.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = aaa.zip; sourceTree = "<group>"; };
 		F742B42A645A4E469952A643 /* Pods-AYHttp_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AYHttp_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AYHttp_Tests/Pods-AYHttp_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -104,6 +106,7 @@
 		1D2AD0871D55C95000994389 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				E7B5040E1DD59794000EDD0D /* aaa.zip */,
 				1D2AD0881D55C96E00994389 /* DBBook.h */,
 				1D2AD0891D55C96E00994389 /* DBBook.m */,
 			);
@@ -314,6 +317,7 @@
 				873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */,
 				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
 				1D07E0661D4B253700AAF96E /* Launch Screen.storyboard in Resources */,
+				E7B5040F1DD59794000EDD0D /* aaa.zip in Resources */,
 				6003F598195388D20070C39A /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

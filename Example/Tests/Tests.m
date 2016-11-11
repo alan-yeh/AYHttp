@@ -208,7 +208,7 @@
 //    id ex = [self expectationWithDescription:@""];
 //    
 //    AYHttpRequest *request = [AYHttpRequest GET:@"http://codesync.cn/api/v3/groups" withParams:nil];
-//    [request setHeaderValue:@"FtpjWQwDSEyU8YpnVsmw" forKey:@"PRIVATE-TOKEN"];
+//    [request setHeaderValue:@"civF-SBvCsSnwZhqvAWs" forKey:@"PRIVATE-TOKEN"];
 //    
 //    [[AYHttp client] executeRequest:request].then(^(AYHttpResponse *resonse){
 //        NSLog(@"%@", resonse.responseJson);
@@ -224,7 +224,7 @@
 //- (void)testSharedHeader{
 //    id ex = [self expectationWithDescription:@""];
 //    
-//    [[AYHttp client] setHeaderValue:@"FtpjWQwDSEyU8YpnVsmw" forKey:@"PRIVATE-TOKEN"];
+//    [[AYHttp client] setHeaderValue:@"civF-SBvCsSnwZhqvAWs" forKey:@"PRIVATE-TOKEN"];
 //    
 //    AYHttpRequest *request = [AYHttpRequest GET:@"http://codesync.cn/api/v3/groups" withParams:nil];
 //    [[AYHttp client] executeRequest:request].then(^(AYHttpResponse *resonse){
@@ -237,7 +237,7 @@
 //    
 //    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
 //}
-
+//
 //- (void)testRedirect{
 //    id ex = [self expectationWithDescription:@""];
 //    
@@ -252,7 +252,7 @@
 //    
 //    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
 //}
-
+//
 
 
 @end

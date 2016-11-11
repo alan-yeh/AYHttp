@@ -9,6 +9,8 @@
 #import "AYHttp.h"
 #import <AFNetworking/AFNetworking.h>
 #import <AYFile/AYFile.h>
+#import <AYCategory/AYCategory.h>
+#import <AYQuery/AYQuery.h>
 #import "AYHttp_Private.h"
 
 NSString const *AYHttpReachabilityChangedNotification = @"AYHttpReachabilityChangedNotification";
@@ -107,19 +109,16 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
 
 
 - (NSDictionary<NSString *,NSString *> *)cookies{
-    NSMutableDictionary *cookiePairs = [NSMutableDictionary new];
-    NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    for (NSHTTPCookie *cookie in cookieStore.cookies) {
-        [cookiePairs addEntriesFromDictionary:cookie.properties];
-    }
-    return cookiePairs.copy;
+    return [NSHTTPCookieStorage sharedHTTPCookieStorage].cookies.query.selectMany(^(NSHTTPCookie *cookie){
+        return cookie.properties.query;
+    }).toDictionary(nil);
 }
 
 - (void)clearCookies{
     NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    for (NSHTTPCookie *cookie in cookieStore.cookies) {
+    cookieStore.cookies.query.each(^(NSHTTPCookie *cookie) {
         [cookieStore deleteCookie:cookie];
-    }
+    });
 }
 
 - (id)cookieValueForKey:(NSString *)key{
@@ -161,19 +160,13 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
     return AYPromiseWith(^id{
         NSMutableURLRequest *urlRequest = nil;
         
-        NSDictionary<NSString *, id> *params = request.params;
+        //找出上传文件的参数
+        AYQueryable *fileParams = request.params.query.findAll(^(AYPair *item){
+            return [item.value isKindOfClass:[AYHttpFileParam class]];
+        });
         
-        NSMutableDictionary<NSString *, id> *parameters = [NSMutableDictionary new];
-        NSMutableDictionary<NSString *, AYHttpFileParam *> *fileParams = [NSMutableDictionary new];
-        
-        for (NSString *key in params) {
-            id param = [params objectForKey:key];
-            if ([param isKindOfClass:[AYHttpFileParam class]]) {
-                [fileParams setObject:param forKey:key];
-            }else{
-                [parameters setObject:param forKey:key];
-            }
-        }
+        //排除上传文件的参数
+        AYQueryable *parameters = request.params.query.except(fileParams);
         
         if (!(!(fileParams.count && ![self.multipartMethods containsObject:request.method]))) {
             return NSErrorMake(nil, @"request method %@ can not append multipart data", request.method);
@@ -183,15 +176,15 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
         if (fileParams.count) {
             urlRequest = [self.session.requestSerializer multipartFormRequestWithMethod:request.method
                                                                               URLString:URLString
-                                                                             parameters:parameters
+                                                                             parameters:parameters.toDictionary(nil)
                                                               constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-                                                                  for (NSString *key in fileParams) {
-                                                                      AYHttpFileParam *param = fileParams[key];
+                                                                  fileParams.each(^(AYPair *item){
+                                                                      AYHttpFileParam *param = item.value;
                                                                       [formData appendPartWithFileData:param.data
-                                                                                                  name:key
+                                                                                                  name:item.key
                                                                                               fileName:param.filename
                                                                                               mimeType:@"application/octet-stream"];
-                                                                  }
+                                                                  });
                                                               }
                                                                                   error:&error];
         }else{
@@ -204,42 +197,26 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
         if (error) {
             return NSErrorMake(error, @"can not parse <AYHttpReqeust %p> to NSURLRequest", request);
         }
-        
-        // process cookie header
-        NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-        NSArray<NSHTTPCookie *> *sharedCookies = cookieStorage.cookies;
-        
+    
         
         NSString *domain = [NSURL URLWithString:URLString].host;
-        
-        NSMutableArray<NSHTTPCookie *> *cookies = [NSMutableArray new];
-        if (sharedCookies.count > 0) {
-            for (NSHTTPCookie *cookie in sharedCookies) {
-                if ([cookie.domain isEqualToString:domain]) {
-                    [cookies addObject:cookie];
-                }
-            }
-        }
-        
-        if (request.cookies.count > 0) {
-            NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:request.cookies];
-            [cookies addObject:cookie];
-        }
+        // process cookie header
+        NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
         
         
+        NSArray<NSHTTPCookie *> *cookies = cookieStorage.cookies.query
+        .findAll(^(NSHTTPCookie *cookie){
+            return [cookie.domain isEqualToString:domain];
+        })
+        .unionAll(@[[NSHTTPCookie cookieWithProperties:request.cookies]])
+        .toArray();
         
         //process other header
         NSDictionary<NSString *, NSString *> *headerProperties = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
         
-        NSMutableDictionary<NSString *, NSString *> *headers = [NSMutableDictionary new];
-        [headers addEntriesFromDictionary:headerProperties];
-        [headers addEntriesFromDictionary:self.headers];
-        [headers addEntriesFromDictionary:request.headers];
-        
-        
-        for (NSString *key in headers) {
-            [urlRequest setValue:headers[key] forHTTPHeaderField:key];
-        }
+        headerProperties.query.unionAll(self.headers).unionAll(request.headers).each(^(AYPair *item){
+            [urlRequest setValue:item.value forHTTPHeaderField:item.key];
+        });
         
         return urlRequest;
     });
