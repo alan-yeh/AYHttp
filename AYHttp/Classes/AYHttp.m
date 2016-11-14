@@ -166,7 +166,7 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
         });
         
         //排除上传文件的参数
-        AYQueryable *parameters = request.params.query.except(fileParams);
+        AYQueryable *parameters = request.params.query.exclude(fileParams);
         
         if (!(!(fileParams.count && ![self.multipartMethods containsObject:request.method]))) {
             return NSErrorMake(nil, @"request method %@ can not append multipart data", request.method);
@@ -208,13 +208,13 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
         .findAll(^(NSHTTPCookie *cookie){
             return [cookie.domain isEqualToString:domain];
         })
-        .unionAll(@[[NSHTTPCookie cookieWithProperties:request.cookies]])
+        .include(@[[NSHTTPCookie cookieWithProperties:request.cookies]])
         .toArray();
         
         //process other header
         NSDictionary<NSString *, NSString *> *headerProperties = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
         
-        headerProperties.query.unionAll(self.headers).unionAll(request.headers).each(^(AYPair *item){
+        headerProperties.query.include(self.headers).include(request.headers).each(^(AYPair *item){
             [urlRequest setValue:item.value forHTTPHeaderField:item.key];
         });
         
