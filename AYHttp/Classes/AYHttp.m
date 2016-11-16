@@ -208,7 +208,7 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
         .findAll(^(NSHTTPCookie *cookie){
             return [cookie.domain isEqualToString:domain];
         })
-        .include(@[[NSHTTPCookie cookieWithProperties:request.cookies]])
+        .include([NSHTTPCookie cookieWithProperties:request.cookies])
         .toArray();
         
         //process other header
