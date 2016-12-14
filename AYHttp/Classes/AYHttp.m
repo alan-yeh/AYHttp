@@ -285,8 +285,8 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
                                                                                  withString:@" "
                                                                                     options:NSLiteralSearch
                                                                                       range:NSMakeRange(0, [suggestedFilename length])];
-                                                         suggestedFilename = [suggestedFilename stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                                                         return [NSURL fileURLWithPath:[[targetPath.path stringByDeletingLastPathComponent] stringByAppendingPathComponent:suggestedFilename]];
+                                                         NSString *decodedFilename = [suggestedFilename stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                                                         return [NSURL fileURLWithPath:[[targetPath.path stringByDeletingLastPathComponent] stringByAppendingPathComponent:decodedFilename]];
                                                      }else{
                                                          return targetPath;
                                                      }
