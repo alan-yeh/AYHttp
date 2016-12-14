@@ -280,7 +280,13 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
                                                     }
                                                  destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
                                                      if (response.suggestedFilename.length > 0) {
-                                                         return [NSURL fileURLWithPath:[[targetPath.path stringByDeletingLastPathComponent] stringByAppendingPathComponent:response.suggestedFilename]];
+                                                         NSMutableString *suggestedFilename = [NSMutableString stringWithString:response.suggestedFilename];
+                                                         [suggestedFilename replaceOccurrencesOfString:@"+"
+                                                                                 withString:@" "
+                                                                                    options:NSLiteralSearch
+                                                                                      range:NSMakeRange(0, [suggestedFilename length])];
+                                                         suggestedFilename = [suggestedFilename stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                                                         return [NSURL fileURLWithPath:[[targetPath.path stringByDeletingLastPathComponent] stringByAppendingPathComponent:suggestedFilename]];
                                                      }else{
                                                          return targetPath;
                                                      }
