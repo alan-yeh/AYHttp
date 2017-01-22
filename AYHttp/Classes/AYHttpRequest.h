@@ -81,13 +81,13 @@ C_CONSTRUCTOR(HEAD)
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *headers;
 @property (nonatomic, readonly) AYHttpRequest *(^removeHeader)(NSString *key, ...);
 @property (nonatomic, readonly) AYHttpRequest *(^withHeader)(NSString *key, NSString *value);
-@property (nonatomic, readonly) AYHttpRequest *(^withHeaders)(NSString *key, NSString *value);
+@property (nonatomic, readonly) AYHttpRequest *(^withHeaders)(NSDictionary<NSString *, NSString *> *headers);
 
 
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *cookies;
 @property (nonatomic, readonly) AYHttpRequest *(^removeCookie)(NSString *key, ...);
 @property (nonatomic, readonly) AYHttpRequest *(^withCookie)(NSString *key, NSString *value);
-@property (nonatomic, readonly) AYHttpRequest *(^withCookies)(NSString *key, NSString *value);
+@property (nonatomic, readonly) AYHttpRequest *(^withCookies)(NSDictionary<NSString *, NSString *> *cookies);
 @end
 
 

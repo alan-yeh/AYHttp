@@ -20,8 +20,7 @@ pod "AYHttp"
 ### GET请求
 
 ```objective-c
-    [AYHttp.client executeRequest:[AYHttpRequest GET:@"https://api.github.com/search/repositories"
-                                          withParams:@{@"q": @"AYHttp"}]]
+    [AYHttpClient executeRequest:AYGETRequest(@"https://api.github.com/search/repositories").withQueryParam(@"q", @"AYHttp")]
     .then(^(AYHttpResponse *response){
         //请求成功
         NSDictionary *result = response.responseJson;
@@ -35,7 +34,7 @@ pod "AYHttp"
 　　Restful风格的api常常使用URL param，AYHttp对此类URL做了处理。
 
 ```objective-c
-    [[AYHttp client] executeRequest:[AYHttpRequest GET:@"https://api.douban.com/v2/book/{bookID}" withParams:@{@"bookID": bookID}]]
+    [AYHttpClient executeRequest:AYGETRequest(@"https://api.douban.com/v2/book/{bookID}").withPathParam(@"bookID", @"1220562")]
     .then(^(AYHttpResponse *response){
         //请求成功
         NSDictionary *result = response.responseJson;
@@ -50,16 +49,14 @@ pod "AYHttp"
 ```objective-c
     NSData *data = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"aaa" ofType:@"zip"]];
     
-    AYHttpRequest *uploadRequest = [AYHttpRequest POST:@"http://10.0.1.2:8080/MDDisk/file"
-                                            withParams:@{
-                                                         @"file": [AYHttpFileParam paramWithData:data andName:@"aaa.zip"]
-                                                         }];
+    AYHttpRequest *uploadRequest = AYPOSTRequest(@"http://10.0.1.2:8080/MDDisk/file").withBodyParam(@"file", [AYHttpFileParam paramWithData:data andName:@"aaa.zip"]);
+    
     [uploadRequest setUploadProgress:^(NSProgress * _Nonnull progress) {
         ///上传进度
         NSLog(@"%@", progress);
     }];
     
-    [AYHttp.client executeRequest:uploadRequest]
+    [AYHttpClient executeRequest:uploadRequest]
     .then(^(AYHttpResponse *response){
         //上传成功
         NSDictionary *result = response.responseJson;
@@ -81,14 +78,14 @@ pod "AYHttp"
 　　使用downloadRequest。下载成功后，在AYHttpResponse的`responseFile`属性中获得文件。
 
 ```objective-c
-    AYHttpRequest *downloadReq = [AYHttpRequest GET:@"https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.1.tar.gz" withParams:nil];
+    AYHttpRequest *downloadReq = AYGETRequest(@"https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.1.tar.gz");
     
     [downloadReq setDownloadProgress:^(NSProgress * _Nonnull progress) {
         //下载进度
         NSLog(@"%@", progress);
     }];
     
-    [AYHttp.client downloadRequest:downloadReq].then(^(AYHttpResponse *response){
+    [AYHttpClient downloadRequest:downloadReq].then(^(AYHttpResponse *response){
         //下载成功
         NSLog(@"%@", response.responseFile);
     }).catch(^(NSError *error){
@@ -101,7 +98,7 @@ pod "AYHttp"
 - 暂停下载，使用then可以获取暂停后生成的`暂存数据文件`。
 
 ```objective-c
-    [[AYHttp client] suspendDownloadRequest:downloadReq].then(^(AYFile *config){
+    [AYHttpClient suspendDownloadRequest:downloadReq].then(^(AYFile *config){
         NSLog(@"%@", config);
     });
 ```
@@ -110,7 +107,7 @@ pod "AYHttp"
 
 ```objective-c
     AYHttpRequest *request = nil;
-    [[AYHttp client] resumeDownloadRequest:&request withConfig:config].then(^(AYHttpResponse *response){
+    [AYHttpClient resumeDownloadRequest:&request withConfig:config].then(^(AYHttpResponse *response){
         //下载成功
         NSLog(@"%@", response.responseFile);
     }).catch(^(NSError *error){

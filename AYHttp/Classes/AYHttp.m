@@ -119,7 +119,7 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
         va_list args;
         va_start(args, keys);
         id key = nil;
-        while (key = va_arg(args, id)) {
+        while ((key = va_arg(args, id)) != nil) {
             [_headers removeObjectForKey:key];
         }
         va_end(args);
@@ -153,7 +153,7 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
         va_list args;
         va_start(args, keys);
         id key = nil;
-        while (key = va_arg(args, id)) {
+        while ((key = va_arg(args, id)) != nil) {
             [_cookies removeObjectForKey:key];
         }
         va_end(args);

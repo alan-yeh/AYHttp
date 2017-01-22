@@ -47,13 +47,13 @@ typedef NS_ENUM(NSInteger, AYNetworkStatus) {
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *headers;
 @property (nonatomic, readonly) AYHttp *(^removeHeader)(NSString *key, ...);
 @property (nonatomic, readonly) AYHttp *(^withHeader)(NSString *key, NSString *value);
-@property (nonatomic, readonly) AYHttp *(^withHeaders)(NSString *key, NSString *value);
+@property (nonatomic, readonly) AYHttp *(^withHeaders)(NSDictionary<NSString *, NSString *> *headers);
 
 
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *cookies;
 @property (nonatomic, readonly) AYHttp *(^removeCookie)(NSString *key, ...);
 @property (nonatomic, readonly) AYHttp *(^withCookie)(NSString *key, NSString *value);
-@property (nonatomic, readonly) AYHttp *(^withCookies)(NSString *key, NSString *value);
+@property (nonatomic, readonly) AYHttp *(^withCookies)(NSDictionary<NSString *, NSString *> *cookies);
 @end
 
 @interface AYHttp (Operation)

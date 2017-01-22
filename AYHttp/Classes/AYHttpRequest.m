@@ -119,7 +119,7 @@ NSArray *AYSupportedHTTPMethods(){
         va_list args;
         va_start(args, keys);
         id key = nil;
-        while (key = va_arg(args, id)) {
+        while ((key = va_arg(args, id)) != nil) {
             [_queryParams removeObjectForKey:key];
         }
         va_end(args);
@@ -153,7 +153,7 @@ NSArray *AYSupportedHTTPMethods(){
         va_list args;
         va_start(args, keys);
         id key = nil;
-        while (key = va_arg(args, id)) {
+        while ((key = va_arg(args, id)) != nil) {
             [_pathParams removeObjectForKey:key];
         }
         va_end(args);
@@ -188,7 +188,7 @@ NSArray *AYSupportedHTTPMethods(){
         va_list args;
         va_start(args, keys);
         id key = nil;
-        while (key = va_arg(args, id)) {
+        while ((key = va_arg(args, id)) != nil) {
             [_bodyParams removeObjectForKey:key];
         }
         va_end(args);
@@ -205,15 +205,15 @@ NSArray *AYSupportedHTTPMethods(){
     return [_headers copy];
 }
 
-- (AYHttpRequest * (^)(NSString *, id))withHeader{
-    return ^(NSString *key, id value){
+- (AYHttpRequest * (^)(NSString *, NSString *))withHeader{
+    return ^(NSString *key, NSString * value){
         [_headers setObject:value forKey:key];
         return self;
     };
 }
 
-- (AYHttpRequest * (^)(NSDictionary<NSString *,id> *))withHeaders{
-    return ^(NSDictionary<NSString *,id> *params){
+- (AYHttpRequest * (^)(NSDictionary<NSString *, NSString *> *))withHeaders{
+    return ^(NSDictionary<NSString *, NSString *> *params){
         [_headers setValuesForKeysWithDictionary:params];
         return self;
     };
@@ -226,7 +226,7 @@ NSArray *AYSupportedHTTPMethods(){
         va_list args;
         va_start(args, keys);
         id key = nil;
-        while (key = va_arg(args, id)) {
+        while ((key = va_arg(args, id)) != nil) {
             [_headers removeObjectForKey:key];
         }
         va_end(args);
@@ -239,15 +239,15 @@ NSArray *AYSupportedHTTPMethods(){
     return [_cookies copy];
 }
 
-- (AYHttpRequest * (^)(NSString *, id))withCookie{
-    return ^(NSString *key, id value){
+- (AYHttpRequest * (^)(NSString *, NSString *))withCookie{
+    return ^(NSString *key, NSString *value){
         [_cookies setObject:value forKey:key];
         return self;
     };
 }
 
-- (AYHttpRequest * (^)(NSDictionary<NSString *,id> *))withCookies{
-    return ^(NSDictionary<NSString *,id> *params){
+- (AYHttpRequest * (^)(NSDictionary<NSString *, NSString *> *))withCookies{
+    return ^(NSDictionary<NSString *, NSString *> *params){
         [_cookies setValuesForKeysWithDictionary:params];
         return self;
     };
@@ -260,7 +260,7 @@ NSArray *AYSupportedHTTPMethods(){
         va_list args;
         va_start(args, keys);
         id key = nil;
-        while (key = va_arg(args, id)) {
+        while ((key = va_arg(args, id)) != nil) {
             [_cookies removeObjectForKey:key];
         }
         va_end(args);
