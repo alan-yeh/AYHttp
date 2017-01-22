@@ -46,8 +46,6 @@ C_CONSTRUCTOR(HEAD)
 /** upload progress callback*/
 @property (nonatomic, copy) void (^uploadProgress)(NSProgress *);
 - (void)setUploadProgress:(void (^)(NSProgress *progress))progress;
-
-- (NSURLRequest *)URLRequest;
 @end
 
 
@@ -80,14 +78,16 @@ C_CONSTRUCTOR(HEAD)
  *  处理Header
  */
 @interface AYHttpRequest (Header)
-@property (nonatomic, retain, readonly) NSMutableDictionary<NSString *, NSString *> *headers;
-@property (nonatomic, retain, readonly) NSMutableDictionary<NSString *, NSString *> *cookies;
+@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *headers;
+@property (nonatomic, readonly) AYHttpRequest *(^removeHeader)(NSString *key, ...);
+@property (nonatomic, readonly) AYHttpRequest *(^withHeader)(NSString *key, NSString *value);
+@property (nonatomic, readonly) AYHttpRequest *(^withHeaders)(NSString *key, NSString *value);
 
-- (void)setHeaderValue:(NSString *)value forKey:(NSString *)key;
-- (NSString *)headerValueForKey:(NSString *)key;
 
-- (void)setCookieValue:(NSString *)cookieValue forKey:(NSString *)key;
-- (NSString *)cookieValueForKey:(NSString *)key;
+@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *cookies;
+@property (nonatomic, readonly) AYHttpRequest *(^removeCookie)(NSString *key, ...);
+@property (nonatomic, readonly) AYHttpRequest *(^withCookie)(NSString *key, NSString *value);
+@property (nonatomic, readonly) AYHttpRequest *(^withCookies)(NSString *key, NSString *value);
 @end
 
 

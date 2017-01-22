@@ -17,50 +17,47 @@
 
 @implementation Tests
 
-- (void)testParams{
-    AYHttpRequest *request = AYGETRequest(@"http://192.168.9.235:7001/mobilework/login/login").withQueryParams(@{@"j_username": @"admin", @"j_password": @"11"});
-    
-    XCTAssert(request.queryParams.count == 2);
-    
-    request.removeQueryParam(@"j_username", @"j_password");
-    XCTAssert(request.queryParams.count == 0);
-}
-
-- (void)testGET{
-    id ex = [self expectationWithDescription:@""];
-    
-    [AYHttpRequest GET:@"http://aaa"].withQueryParams(@{});
-    
-    [AYHttpClient executeRequest:AYGETRequest(@"http://192.168.9.235:7001/mobilework/login/login").withQueryParams(@{@"j_username": @"admin", @"j_password": @"11"})].then(^(AYHttpResponse *response){
-        
-        AYHttpRequest *request = AYGETRequest(@"http://192.168.9.235:7001/PASystem/appMain?service=com.minstone.pasystem.action.port.helper.PortCmd&func=queryReleaseSchedule").withQueryParam(@"userName", @"谢彩玲");
-        
-        request.encoding = NSGBKStringEncoding;
-        return [AYHttpClient executeRequest:request];
-        
-    }).then(^(AYHttpResponse *response){
-        NSDictionary *dic = response.responseJson;
-        
-        NSLog(@"%@", dic);
-        XCTAssert(response.responseJson);
-    }).catch(^(NSError *error){
-        
-        XCTAssert(NO, @"should be success");
-    }).always(^{
-        [ex fulfill];
-    });
-    
-    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
-}
+//- (void)testParams{
+//    AYHttpRequest *request = AYGETRequest(@"http://192.168.9.235:7001/mobilework/login/login").withQueryParams(@{@"j_username": @"admin", @"j_password": @"11"});
+//    
+//    XCTAssert(request.queryParams.count == 2);
+//    
+//    request.removeQueryParam(@"j_username", @"j_password");
+//    XCTAssert(request.queryParams.count == 0);
+//}
+//
+//- (void)testGET{
+//    id ex = [self expectationWithDescription:@""];
+//    
+//    [AYHttpRequest GET:@"http://aaa"].withQueryParams(@{});
+//    
+//    [AYHttpClient executeRequest:AYGETRequest(@"http://192.168.9.235:7001/mobilework/login/login").withQueryParams(@{@"j_username": @"admin", @"j_password": @"11"})].then(^(AYHttpResponse *response){
+//        
+//        AYHttpRequest *request = AYGETRequest(@"http://192.168.9.235:7001/PASystem/appMain?service=com.minstone.pasystem.action.port.helper.PortCmd&func=queryReleaseSchedule").withQueryParam(@"userName", @"谢彩玲");
+//        
+//        request.encoding = NSGBKStringEncoding;
+//        return [AYHttpClient executeRequest:request];
+//        
+//    }).then(^(AYHttpResponse *response){
+//        NSDictionary *dic = response.responseJson;
+//        
+//        NSLog(@"%@", dic);
+//        XCTAssert(response.responseJson);
+//    }).catch(^(NSError *error){
+//        
+//        XCTAssert(NO, @"should be success");
+//    }).always(^{
+//        [ex fulfill];
+//    });
+//    
+//    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
+//}
 
 
 //- (void)testGET{
 //    id ex = [self expectationWithDescription:@""];
 //    
-//    [AYHttp.client executeRequest:[AYHttpRequest GET:@"https://api.github.com/search/repositories"
-//                                          withParams:@{
-//                                                       @"q": @"AYHttp"
-//                                                       }]]
+//    [AYHttpClient executeRequest:AYGETRequest(@"https://api.github.com/search/repositories").withQueryParam(@"q", @"AYHttp")]
 //    .then(^(AYHttpResponse *response){
 //        XCTAssert(response.responseJson);
 //    }).catch(^(NSError *error){
@@ -76,8 +73,7 @@
 //- (void)testGETError{
 //    id ex = [self expectationWithDescription:@""];
 //    
-//    [AYHttp.client executeRequest:[AYHttpRequest GET:@"http://api.fir.im/apps/latest/576107d2e75e2d717d000014"
-//                                          withParams:nil]]
+//    [AYHttpClient executeRequest:AYGETRequest(@"http://api.fir.im/apps/latest/576107d2e75e2d717d000014")]
 //    .then(^(AYHttpResponse *response){
 //        XCTAssert(NO, @"should be fail");
 //    }).catch(^(NSError *error){
@@ -92,12 +88,11 @@
 //- (void)testPOST{
 //    id ex = [self expectationWithDescription:@""];
 //    
-//    [AYHttp.client executeRequest:[AYHttpRequest POST:@"http://api.fir.im/apps"
-//                                           withParams:@{
-//                                                        @"type": @"ios",
-//                                                        @"bundle_id": @"cn.yerl.aa",
-//                                                        @"api_token": @"f156b688dd49f664d85a5c5eac6597d4"
-//                                                        }]]
+//    [AYHttpClient executeRequest:AYPOSTRequest(@"http://api.fir.im/apps").withBodyParams(@{
+//                                                                                           @"type": @"ios",
+//                                                                                           @"bundle_id": @"cn.yerl.aa",
+//                                                                                           @"api_token": @"f156b688dd49f664d85a5c5eac6597d4"
+//                                                                                           })]
 //    .then(^(AYHttpResponse *response){
 //        XCTAssert(response.responseJson);
 //    }).catch(^(NSError *error){
@@ -115,11 +110,10 @@
 //- (void)testPOSTError{
 //    id ex = [self expectationWithDescription:@""];
 //    
-//    [AYHttp.client executeRequest:[AYHttpRequest POST:@"http://api.fir.im/apps"
-//                                           withParams:@{
-//                                                        @"type": @"ios",
-//                                                        @"bundle_id": @"cn.yerl.aa"
-//                                                        }]]
+//    [AYHttpClient executeRequest:AYPOSTRequest(@"http://api.fir.im/apps").withBodyParams(@{
+//                                                                                           @"type": @"ios",
+//                                                                                           @"bundle_id": @"cn.yerl.aa"
+//                                                                                           })]
 //    .then(^(AYHttpResponse *response){
 //        XCTAssert(NO, @"should be fail");
 //    }).catch(^(NSError *error){
@@ -232,10 +226,9 @@
 //- (void)testHeader{
 //    id ex = [self expectationWithDescription:@""];
 //    
-//    AYHttpRequest *request = [AYHttpRequest GET:@"http://codesync.cn/api/v3/groups" withParams:nil];
-//    [request setHeaderValue:@"civF-SBvCsSnwZhqvAWs" forKey:@"PRIVATE-TOKEN"];
+//    AYHttpRequest *request = AYGETRequest(@"http://codesync.cn/api/v3/groups").withHeader(@"PRIVATE-TOKEN", @"oK-19ifaqNhVbqAs5xwe");
 //    
-//    [[AYHttp client] executeRequest:request].then(^(AYHttpResponse *resonse){
+//    [AYHttpClient executeRequest:request].then(^(AYHttpResponse *resonse){
 //        NSLog(@"%@", resonse.responseJson);
 //    }).catch(^(NSError *error){
 //        XCTAssert(NO);
@@ -249,10 +242,9 @@
 //- (void)testSharedHeader{
 //    id ex = [self expectationWithDescription:@""];
 //    
-//    [[AYHttp client] setHeaderValue:@"civF-SBvCsSnwZhqvAWs" forKey:@"PRIVATE-TOKEN"];
+//    AYHttpClient.withHeader(@"PRIVATE-TOKEN", @"oK-19ifaqNhVbqAs5xwe");
 //    
-//    AYHttpRequest *request = [AYHttpRequest GET:@"http://codesync.cn/api/v3/groups" withParams:nil];
-//    [[AYHttp client] executeRequest:request].then(^(AYHttpResponse *resonse){
+//    [AYHttpClient executeRequest:AYGETRequest(@"http://codesync.cn/api/v3/groups")].then(^(AYHttpResponse *resonse){
 //        NSLog(@"%@", resonse.responseJson);
 //    }).catch(^(NSError *error){
 //        XCTAssert(NO);

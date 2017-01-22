@@ -44,25 +44,23 @@ typedef NS_ENUM(NSInteger, AYNetworkStatus) {
  *  Headers and cookies are shared with all request
  */
 @interface AYHttp (Header)
-@property (readonly) NSDictionary<NSString *, NSString *> *headers;
-- (void)clearHeaders;
-- (NSString *)headerValueForKey:(NSString *)key;
-- (void)setHeaderValue:(NSString *)value forKey:(NSString *)key;
-- (void)setHeaderWithProperties:(NSDictionary<NSString *, NSString *> *)properties;
+@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *headers;
+@property (nonatomic, readonly) AYHttp *(^removeHeader)(NSString *key, ...);
+@property (nonatomic, readonly) AYHttp *(^withHeader)(NSString *key, NSString *value);
+@property (nonatomic, readonly) AYHttp *(^withHeaders)(NSString *key, NSString *value);
 
 
-@property (readonly) NSDictionary<NSString *, id> *cookies;
-- (void)clearCookies;
-- (id)cookieValueForKey:(NSString *)key;
-- (void)setCookieValue:(id)value forKey:(NSString *)key;
-- (void)setCookieWithProperties:(NSDictionary<NSString *, id> *)properties;
+@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *cookies;
+@property (nonatomic, readonly) AYHttp *(^removeCookie)(NSString *key, ...);
+@property (nonatomic, readonly) AYHttp *(^withCookie)(NSString *key, NSString *value);
+@property (nonatomic, readonly) AYHttp *(^withCookies)(NSString *key, NSString *value);
 @end
 
 @interface AYHttp (Operation)
-- (AYPromise<NSMutableURLRequest *> *)parseRequest:(AYHttpRequest *)request;
+- (AYPromise<NSURLRequest *> *)parseRequest:(AYHttpRequest *)request;
 
-- (AYPromise<AYHttpRequest *> *)executeRequest:(AYHttpRequest *)request;
-- (AYPromise<AYHttpRequest *> *)downloadRequest:(AYHttpRequest *)request;
+- (AYPromise<AYHttpResponse *> *)executeRequest:(AYHttpRequest *)request;
+- (AYPromise<AYHttpResponse *> *)downloadRequest:(AYHttpRequest *)request;
 
 - (void)cancelRequest:(AYHttpRequest *)request;
 

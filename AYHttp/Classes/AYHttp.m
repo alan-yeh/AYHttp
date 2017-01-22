@@ -25,10 +25,15 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
 @end
 
 @implementation AYHttp{
-    NSMutableDictionary<NSString *, NSString *> *_headers;
+    NSMutableDictionary *_cookies;
+    NSMutableDictionary *_headers;
 }
 - (instancetype)_init{
-    return [super init];
+    if (self = [super init]) {
+        _cookies = [NSMutableDictionary new];
+        _headers = [NSMutableDictionary new];
+    }
+    return self;
 }
 
 + (instancetype)client{
@@ -88,60 +93,73 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
 @end
 
 @implementation AYHttp (Cookies)
-- (NSMutableDictionary<NSString *,NSString *> *)headers{
-    return _headers ?: (_headers = [NSMutableDictionary new]);
+#pragma - header
+- (NSDictionary<NSString *,NSString *> *)headers{
+    return [_headers copy];
 }
 
-- (void)clearHeaders{
-    _headers = nil;
+- (AYHttp * (^)(NSString *, id))withHeader{
+    return ^(NSString *key, id value){
+        [_headers setObject:value forKey:key];
+        return self;
+    };
 }
 
-- (NSString *)headerValueForKey:(NSString *)key{
-    return [_headers objectForKey:key];
+- (AYHttp * (^)(NSDictionary<NSString *,id> *))withHeaders{
+    return ^(NSDictionary<NSString *,id> *params){
+        [_headers setValuesForKeysWithDictionary:params];
+        return self;
+    };
 }
 
-- (void)setHeaderValue:(NSString *)value forKey:(NSString *)key{
-    [self.headers setValue:value forKey:key];
-}
-
-- (void)setHeaderWithProperties:(NSDictionary<NSString *,NSString *> *)properties{
-    [self.headers setValuesForKeysWithDictionary:properties];
-}
-
-
-- (NSDictionary<NSString *,NSString *> *)cookies{
-    return [NSHTTPCookieStorage sharedHTTPCookieStorage].cookies.query.selectMany(^(NSHTTPCookie *cookie){
-        return cookie.properties.query;
-    }).toDictionary(nil);
-}
-
-- (void)clearCookies{
-    NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    cookieStore.cookies.query.each(^(NSHTTPCookie *cookie) {
-        [cookieStore deleteCookie:cookie];
-    });
-}
-
-- (id)cookieValueForKey:(NSString *)key{
-    NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    for (NSHTTPCookie *cookie in cookieStore.cookies) {
-        id result = [cookie.properties objectForKey:key];
-        if (result != nil) {
-            return result;
+- (AYHttp * (^)(NSString *, ...))removeHeader{
+    return ^(NSString *keys, ...){
+        [_headers removeObjectForKey:keys];
+        
+        va_list args;
+        va_start(args, keys);
+        id key = nil;
+        while (key = va_arg(args, id)) {
+            [_headers removeObjectForKey:key];
         }
-    }
-    return nil;
+        va_end(args);
+        return self;
+    };
 }
 
-- (void)setCookieValue:(id)value forKey:(NSString *)key{
-    [self setCookieWithProperties:@{key: value}];
+#pragma - cookie
+- (NSDictionary<NSString *,NSString *> *)cookies{
+    return [_cookies copy];
 }
 
-- (void)setCookieWithProperties:(NSDictionary<NSString *,id> *)properties{
-    NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:properties];
-    [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookie];
+- (AYHttp * (^)(NSString *, id))withCookie{
+    return ^(NSString *key, id value){
+        [_cookies setObject:value forKey:key];
+        return self;
+    };
 }
-@end
+
+- (AYHttp * (^)(NSDictionary<NSString *,id> *))withCookies{
+    return ^(NSDictionary<NSString *,id> *params){
+        [_cookies setValuesForKeysWithDictionary:params];
+        return self;
+    };
+}
+
+- (AYHttp * (^)(NSString *, ...))removeCookie{
+    return ^(NSString *keys, ...){
+        [_cookies removeObjectForKey:keys];
+        
+        va_list args;
+        va_start(args, keys);
+        id key = nil;
+        while (key = va_arg(args, id)) {
+            [_cookies removeObjectForKey:key];
+        }
+        va_end(args);
+        return self;
+    };
+}@end
 
 @implementation AYHttp (Operation)
 - (NSSet<NSString *> *)multipartMethods{

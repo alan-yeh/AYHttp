@@ -44,6 +44,9 @@ C_CONSTRUCTOR_IMP(HEAD)
         _queryParams = [NSMutableDictionary new];
         _pathParams = [NSMutableDictionary new];
         _bodyParams = [NSMutableDictionary new];
+        
+        _headers = [NSMutableDictionary new];
+        _cookies = [NSMutableDictionary new];
     }
     return self;
 }
@@ -87,49 +90,6 @@ NSArray *AYSupportedHTTPMethods(){
 }
 
 
-//- (NSString *)buildQueryParams:(NSDictionary<NSString *, id> *)params withEncoding:(NSStringEncoding)encoding{
-//    NSMutableString *query = [NSMutableString new];
-//    for (NSString *key in params) {
-//        if (query.length) {
-//            [query appendString:@"&"];
-//        }
-//        [query appendFormat:@"%@=%@", [key ay_URLEncodingWithEncoding:encoding], [[[params objectForKey:key] description] ay_URLEncodingWithEncoding:encoding]];
-//    }
-//    return query;
-//}
-//
-///// 处理path param
-//- (NSString *)parsePathParams:(NSString *)urlString params:(NSDictionary *)params{
-//    if ([urlString rangeOfString:@"{"].location == NSNotFound) {
-//        return urlString;
-//    }
-//    
-//    __block NSString *result = urlString;
-//    
-//    params.query.each(^(AYPair *param){
-//        NSString *replacement = NSStringWithFormat(@"{%@}", param.key);
-//        if ([result containsString:replacement]) {
-//            result = [result stringByReplacingOccurrencesOfString:replacement withString:[param.value description]];
-//        }
-//    });
-//    
-//    return result;
-//}
-//
-//- (NSMutableURLRequest *)URLRequest{
-//    NSString *URLString = [self parsePathParams:self.URLString params:self.pathParams];
-//    
-//    NSURL *URL = [NSURL URLWithString:URLString relativeToURL:self.baseURL];
-//    
-//    URLString = [URL absoluteString];
-//    NSAssert(URLString.length, @"URLString is not valid");
-//    
-//    
-//    NSString *query = [self buildQueryParams:request.queryParams withEncoding:request.encoding];
-//    if (query.length) {
-//        URLString = NSStringWithFormat(URL.query ? @"%@&%@" : @"%@?%@", URLString, query);
-//    }
-//}
 @end
 
 @implementation AYHttpRequest (Params)
@@ -240,30 +200,73 @@ NSArray *AYSupportedHTTPMethods(){
 @end
 
 @implementation AYHttpRequest (Header)
-- (NSMutableDictionary<NSString *,NSString *> *)headers{
-    return _headers ?: (_headers = [NSMutableDictionary new]);
+#pragma - header
+- (NSDictionary<NSString *,NSString *> *)headers{
+    return [_headers copy];
 }
 
-- (NSMutableDictionary<NSString *,NSString *> *)cookies{
-    return _cookies ?: (_cookies = [NSMutableDictionary new]);
+- (AYHttpRequest * (^)(NSString *, id))withHeader{
+    return ^(NSString *key, id value){
+        [_headers setObject:value forKey:key];
+        return self;
+    };
 }
 
-- (void)setHeaderValue:(NSString *)value forKey:(NSString *)key{
-    [self.headers setObject:value forKey:key];
+- (AYHttpRequest * (^)(NSDictionary<NSString *,id> *))withHeaders{
+    return ^(NSDictionary<NSString *,id> *params){
+        [_headers setValuesForKeysWithDictionary:params];
+        return self;
+    };
 }
 
-- (NSString *)headerValueForKey:(NSString *)key{
-    return [self.headers objectForKey:key];
+- (AYHttpRequest * (^)(NSString *, ...))removeHeader{
+    return ^(NSString *keys, ...){
+        [_headers removeObjectForKey:keys];
+        
+        va_list args;
+        va_start(args, keys);
+        id key = nil;
+        while (key = va_arg(args, id)) {
+            [_headers removeObjectForKey:key];
+        }
+        va_end(args);
+        return self;
+    };
 }
 
-- (void)setCookieValue:(NSString *)cookieValue forKey:(NSString *)key{
-    [self.cookies setObject:cookieValue forKey:key];
+#pragma - cookie
+- (NSDictionary<NSString *,NSString *> *)cookies{
+    return [_cookies copy];
 }
 
-- (NSString *)cookieValueForKey:(NSString *)key{
-    return [self.cookies objectForKey:key];
+- (AYHttpRequest * (^)(NSString *, id))withCookie{
+    return ^(NSString *key, id value){
+        [_cookies setObject:value forKey:key];
+        return self;
+    };
 }
 
+- (AYHttpRequest * (^)(NSDictionary<NSString *,id> *))withCookies{
+    return ^(NSDictionary<NSString *,id> *params){
+        [_cookies setValuesForKeysWithDictionary:params];
+        return self;
+    };
+}
+
+- (AYHttpRequest * (^)(NSString *, ...))removeCookie{
+    return ^(NSString *keys, ...){
+        [_cookies removeObjectForKey:keys];
+        
+        va_list args;
+        va_start(args, keys);
+        id key = nil;
+        while (key = va_arg(args, id)) {
+            [_cookies removeObjectForKey:key];
+        }
+        va_end(args);
+        return self;
+    };
+}
 @end
 
 @implementation AYHttpFileParam
