@@ -10,8 +10,20 @@
 
 @class AYFile;
 @class AYHttpFileParam;
+@class AYHttpRequest;
 
 NS_ASSUME_NONNULL_BEGIN
+
+#define C_CONSTRUCTOR(METHOD) \
+AYHttpRequest *AY##METHOD##Request(NSString *URLString);
+
+C_CONSTRUCTOR(GET)
+C_CONSTRUCTOR(POST)
+C_CONSTRUCTOR(PUT)
+C_CONSTRUCTOR(DELETE)
+C_CONSTRUCTOR(HEAD)
+
+#undef C_CONSTRUCTOR
 
 @interface AYHttpRequest : NSObject
 
@@ -20,23 +32,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSStringEncoding encoding;/**< default is UTF8Encoding */
 
 + (instancetype)GET:(NSString *)URLString;
-+ (instancetype)POST:(NSString *)URL;
-+ (instancetype)PUT:(NSString *)URL;
-+ (instancetype)DELETE:(NSString *)URL;
-+ (instancetype)HEAD:(NSString *)URL;
-
-+ (instancetype)GET:(NSString *)URL withParams:(nullable NSDictionary<NSString *, id> *)params;/**< URL can be NSURL, AYRestURL, NSString */
-+ (instancetype)POST:(NSString *)URL withParams:(nullable NSDictionary<NSString *, id> *)params;/**< URL can be NSURL, AYRestURL, NSString */
-+ (instancetype)PUT:(NSString *)URL withParams:(nullable NSDictionary<NSString *, id> *)params;/**< URL can be NSURL, AYRestURL, NSString */
-+ (instancetype)DELETE:(NSString *)URL withParams:(nullable NSDictionary<NSString *, id> *)params;/**< URL can be NSURL, AYRestURL, NSString */
-+ (instancetype)HEAD:(NSString *)URL withParams:(nullable NSDictionary<NSString *, id> *)params;/**< URL can be NSURL, AYRestURL, NSString */
++ (instancetype)POST:(NSString *)URLString;
++ (instancetype)PUT:(NSString *)URLString;
++ (instancetype)DELETE:(NSString *)URLString;
++ (instancetype)HEAD:(NSString *)URLString;
 
 - (instancetype)initWithMethod:(NSString *)method URL:(NSString *)URLString andParams:(nullable NSDictionary<NSString *, id> *)params;
-
-@property (nonatomic, readonly) NSDictionary<NSString *, id> *params;
-- (void)putParam:(id)param forKey:(NSString *)key;
-- (id)removeParamForKey:(NSString *)key;
-- (id)paramForKey:(NSString *)key;
 
 /** download progress callback*/
 @property (nonatomic, copy) void (^downloadProgress)(NSProgress *);
@@ -46,10 +47,37 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) void (^uploadProgress)(NSProgress *);
 - (void)setUploadProgress:(void (^)(NSProgress *progress))progress;
 
+- (NSURLRequest *)URLRequest;
 @end
 
+
 /**
- *  Headers and cookies are just use for current request.
+ *  处理参数
+ */
+@interface AYHttpRequest (Params)
+// 参数拼接在URL
+@property (nonatomic, readonly) NSDictionary<NSString *, id> *queryParams;
+@property (nonatomic, readonly) AYHttpRequest *(^removeQueryParam)(NSString *key, ...);
+@property (nonatomic, readonly) AYHttpRequest *(^withQueryParam)(NSString *key, id value);
+@property (nonatomic, readonly) AYHttpRequest *(^withQueryParams)(NSDictionary<NSString *, id> *params);
+
+// RESTful url 传参，使用{}进行占位
+@property (nonatomic, readonly) NSDictionary<NSString *, id> *pathParams;
+@property (nonatomic, readonly) AYHttpRequest *(^removePathParam)(NSString *key, ...);
+@property (nonatomic, readonly) AYHttpRequest *(^withPathParam)(NSString *key, id value);
+@property (nonatomic, readonly) AYHttpRequest *(^withPathParams)(NSDictionary<NSString *, id> *params);
+
+// 参数拼接在Body
+@property (nonatomic, readonly) NSDictionary<NSString *, id> *bodyParams;
+@property (nonatomic, readonly) AYHttpRequest *(^removeBodyParam)(NSString *key, ...);
+@property (nonatomic, readonly) AYHttpRequest *(^withBodyParam)(NSString *key, id value);
+@property (nonatomic, readonly) AYHttpRequest *(^withBodyParams)(NSDictionary<NSString *, id> *params);
+@end
+
+
+
+/**
+ *  处理Header
  */
 @interface AYHttpRequest (Header)
 @property (nonatomic, retain, readonly) NSMutableDictionary<NSString *, NSString *> *headers;

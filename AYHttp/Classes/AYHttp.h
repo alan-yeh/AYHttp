@@ -26,6 +26,7 @@ typedef NS_ENUM(NSInteger, AYNetworkStatus) {
     AYNetworkStatusReachableViaWiFi = 2    /** Wifi网络 */
 };
 
+#define AYHttpClient AYHttp.client
 @interface AYHttp : NSObject
 + (instancetype)new __attribute__((unavailable("使用client来获取实例")));
 - (instancetype)init __attribute__((unavailable("使用client来获取实例")));

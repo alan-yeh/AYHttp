@@ -15,14 +15,35 @@
 #import "AYHttpRequest.h"
 #import "AYHttp_Private.h"
 
+
+#define C_CONSTRUCTOR_IMP(METHOD) \
+AYHttpRequest *AY##METHOD##Request(NSString *URLString) {\
+    return [AYHttpRequest METHOD:URLString]; \
+}
+
+C_CONSTRUCTOR_IMP(GET)
+C_CONSTRUCTOR_IMP(POST)
+C_CONSTRUCTOR_IMP(PUT)
+C_CONSTRUCTOR_IMP(DELETE)
+C_CONSTRUCTOR_IMP(HEAD)
+
+#undef C_CONSTRUCTOR
+
 @implementation AYHttpRequest{
     NSMutableDictionary<NSString *, NSString *> *_headers;
     NSMutableDictionary<NSString *, NSString *> *_cookies;
+    
+    NSMutableDictionary<NSString *, id> *_queryParams;
+    NSMutableDictionary<NSString *, id> *_pathParams;
+    NSMutableDictionary<NSString *, id> *_bodyParams;
 }
 
 - (instancetype)init{
     if (self = [super init]) {
         self.encoding = NSUTF8StringEncoding;
+        _queryParams = [NSMutableDictionary new];
+        _pathParams = [NSMutableDictionary new];
+        _bodyParams = [NSMutableDictionary new];
     }
     return self;
 }
@@ -39,76 +60,182 @@ CONSTRUCTOR(DELETE)
 CONSTRUCTOR(HEAD)
 #undef CONSTRUCTOR
 
-//有参构造函数
-#define CONSTRUCTOR(METHOD) \
-+ (instancetype)METHOD:(NSString *)URLString withParams:(NSDictionary<NSString *,id> *)params{ \
-    return [[self alloc] initWithMethod:@#METHOD URL:URLString andParams:params]; \
-}
-CONSTRUCTOR(GET)
-CONSTRUCTOR(POST)
-CONSTRUCTOR(PUT)
-CONSTRUCTOR(DELETE)
-CONSTRUCTOR(HEAD)
-#undef CONSTRUCTOR
-
-
 - (instancetype)initWithMethod:(NSString *)method URL:(NSString *)URLString andParams:(NSDictionary<NSString *,id> *)params{
     if (self = [self init]) {
         self.method = method;
         self.URLString = URLString;
         [self.parameters setDictionary:params];
+        
     }
     return self;
+}
+
+NSArray *AYSupportedHTTPMethods(){
+    return @[@"GET", @"POST", @"PUT", @"DELETE", @"HEAD"];
 }
 
 - (NSString *)description{
-    return [NSString stringWithFormat:@"<AFHttpRequest %p>:{\n    URL: %@\n    method: %@\n    params: %@\n    header: %@\n}", self, self.URLString, self.method, self.params, self.headers];
+    return [NSString stringWithFormat:@"<AFHttpRequest %p>:{\n    URL: %@\n    method: %@\n    path params: %@\n    query params: %@\n    body params: %@\n    header: %@\n}", self, self.URLString, self.method, self.pathParams, self.queryParams, self.bodyParams, self.headers];
 }
 
-- (NSMutableDictionary<NSString *,id> *)parameters{
-    return _parameters ? _parameters : (_parameters = [NSMutableDictionary new]);
-}
-
-- (NSDictionary<NSString *,id> *)params{
-    return self.parameters.copy;
-}
-
-- (void)putParam:(id)param forKey:(NSString *)key{
-    [self.parameters setObject:param forKey:key];
-}
-
-- (id)removeParamForKey:(NSString *)key{
-    id param = self.parameters[key];
-    [self.parameters removeObjectForKey:key];
-    return param;
-}
-
-- (id)paramForKey:(NSString *)key{
-    return self.parameters[key];
-}
 
 - (void)setMethod:(NSString *)method{
-    _method = method.uppercaseString.copy;
+    _method = method.uppercaseString;
+    if (![AYSupportedHTTPMethods() containsObject:_method]) {
+        @throw NSErrorMake(nil, @"%@ is not supported", _method);
+    }
 }
 
-- (instancetype)parseUrlParam{
-    if ([self.URLString rangeOfString:@"{"].location == NSNotFound) {
-        return self;
-    }
-    
-    NSMutableArray<NSString *> *removedKeys = [NSMutableArray new];
-    
-    self.parameters.query.each(^(NSString *key){
-        NSString *replacement = NSStringWithFormat(@"{%@}", key);
-        if ([self.URLString containsString:replacement]) {
-            self.URLString = [self.URLString stringByReplacingOccurrencesOfString:replacement withString:[self.parameters[key] description]];
-            [removedKeys addObject:key];
-        }
-    });
-    
-    [self.parameters removeObjectsForKeys:removedKeys];
-    return self;
+
+//- (NSString *)buildQueryParams:(NSDictionary<NSString *, id> *)params withEncoding:(NSStringEncoding)encoding{
+//    NSMutableString *query = [NSMutableString new];
+//    for (NSString *key in params) {
+//        if (query.length) {
+//            [query appendString:@"&"];
+//        }
+//        [query appendFormat:@"%@=%@", [key ay_URLEncodingWithEncoding:encoding], [[[params objectForKey:key] description] ay_URLEncodingWithEncoding:encoding]];
+//    }
+//    return query;
+//}
+//
+///// 处理path param
+//- (NSString *)parsePathParams:(NSString *)urlString params:(NSDictionary *)params{
+//    if ([urlString rangeOfString:@"{"].location == NSNotFound) {
+//        return urlString;
+//    }
+//    
+//    __block NSString *result = urlString;
+//    
+//    params.query.each(^(AYPair *param){
+//        NSString *replacement = NSStringWithFormat(@"{%@}", param.key);
+//        if ([result containsString:replacement]) {
+//            result = [result stringByReplacingOccurrencesOfString:replacement withString:[param.value description]];
+//        }
+//    });
+//    
+//    return result;
+//}
+//
+//- (NSMutableURLRequest *)URLRequest{
+//    NSString *URLString = [self parsePathParams:self.URLString params:self.pathParams];
+//    
+//    NSURL *URL = [NSURL URLWithString:URLString relativeToURL:self.baseURL];
+//    
+//    URLString = [URL absoluteString];
+//    NSAssert(URLString.length, @"URLString is not valid");
+//    
+//    
+//    NSString *query = [self buildQueryParams:request.queryParams withEncoding:request.encoding];
+//    if (query.length) {
+//        URLString = NSStringWithFormat(URL.query ? @"%@&%@" : @"%@?%@", URLString, query);
+//    }
+//}
+@end
+
+@implementation AYHttpRequest (Params)
+#pragma - query param
+- (NSDictionary<NSString *,id> *)queryParams{
+    return [_queryParams copy];
 }
+
+- (AYHttpRequest * (^)(NSString *, id))withQueryParam{
+    return ^(NSString *key, id value){
+        [_queryParams setObject:value forKey:key];
+        return self;
+    };
+}
+
+- (AYHttpRequest * (^)(NSDictionary<NSString *,id> *))withQueryParams{
+    return ^(NSDictionary<NSString *,id> *params){
+        [_queryParams setValuesForKeysWithDictionary:params];
+        return self;
+    };
+}
+
+- (AYHttpRequest * (^)(NSString *, ...))removeQueryParam{
+    return ^(NSString *keys, ...){
+        [_queryParams removeObjectForKey:keys];
+        
+        va_list args;
+        va_start(args, keys);
+        id key = nil;
+        while (key = va_arg(args, id)) {
+            [_queryParams removeObjectForKey:key];
+        }
+        va_end(args);
+        return self;
+    };
+}
+
+#pragma - path param
+- (NSDictionary<NSString *,id> *)pathParams{
+    return [_pathParams copy];
+}
+
+- (AYHttpRequest * (^)(NSString *, id))withPathParam{
+    return ^(NSString *key, id value){
+        [_pathParams setObject:value forKey:key];
+        return self;
+    };
+}
+
+- (AYHttpRequest * (^)(NSDictionary<NSString *,id> *))withPathParams{
+    return ^(NSDictionary<NSString *,id> *params){
+        [_pathParams setValuesForKeysWithDictionary:params];
+        return self;
+    };
+}
+
+- (AYHttpRequest * (^)(NSString *, ...))removePathParam{
+    return ^(NSString *keys, ...){
+        [_pathParams removeObjectForKey:keys];
+        
+        va_list args;
+        va_start(args, keys);
+        id key = nil;
+        while (key = va_arg(args, id)) {
+            [_pathParams removeObjectForKey:key];
+        }
+        va_end(args);
+        return self;
+    };
+}
+
+#pragma - body param
+- (NSDictionary<NSString *,id> *)bodyParams{
+    return [_bodyParams copy];
+}
+
+- (AYHttpRequest * (^)(NSString *, id))withBodyParam{
+    return ^(NSString *key, id value){
+        [_bodyParams setObject:value forKey:key];
+        return self;
+    };
+}
+
+- (AYHttpRequest * (^)(NSDictionary<NSString *,id> *))withBodyParams{
+    return ^(NSDictionary<NSString *,id> *params){
+        [_bodyParams setValuesForKeysWithDictionary:params];
+        return self;
+    };
+}
+
+- (AYHttpRequest * (^)(NSString *, ...))removeBodyParam{
+    return ^(NSString *keys, ...){
+        [_bodyParams removeObjectForKey:keys];
+        
+        
+        va_list args;
+        va_start(args, keys);
+        id key = nil;
+        while (key = va_arg(args, id)) {
+            [_bodyParams removeObjectForKey:key];
+        }
+        va_end(args);
+        return self;
+    };
+}
+
 
 @end
 

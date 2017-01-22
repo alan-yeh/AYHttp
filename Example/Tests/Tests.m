@@ -8,7 +8,7 @@
 
 @import XCTest;
 #import <AYHttp/AYHttp.h>
-
+#import <AYCategory/AYCategory.h>
 #define TIME_OUT NSTimeIntervalSince1970
 
 @interface Tests : XCTestCase
@@ -17,18 +17,43 @@
 
 @implementation Tests
 
-//- (void)setUp
-//{
-//    [super setUp];
-//    // Put setup code here. This method is called before the invocation of each test method in the class.
-//}
-//
-//- (void)tearDown
-//{
-//    // Put teardown code here. This method is called after the invocation of each test method in the class.
-//    [super tearDown];
-//}
-//
+- (void)testParams{
+    AYHttpRequest *request = AYGETRequest(@"http://192.168.9.235:7001/mobilework/login/login").withQueryParams(@{@"j_username": @"admin", @"j_password": @"11"});
+    
+    XCTAssert(request.queryParams.count == 2);
+    
+    request.removeQueryParam(@"j_username", @"j_password");
+    XCTAssert(request.queryParams.count == 0);
+}
+
+- (void)testGET{
+    id ex = [self expectationWithDescription:@""];
+    
+    [AYHttpRequest GET:@"http://aaa"].withQueryParams(@{});
+    
+    [AYHttpClient executeRequest:AYGETRequest(@"http://192.168.9.235:7001/mobilework/login/login").withQueryParams(@{@"j_username": @"admin", @"j_password": @"11"})].then(^(AYHttpResponse *response){
+        
+        AYHttpRequest *request = AYGETRequest(@"http://192.168.9.235:7001/PASystem/appMain?service=com.minstone.pasystem.action.port.helper.PortCmd&func=queryReleaseSchedule").withQueryParam(@"userName", @"谢彩玲");
+        
+        request.encoding = NSGBKStringEncoding;
+        return [AYHttpClient executeRequest:request];
+        
+    }).then(^(AYHttpResponse *response){
+        NSDictionary *dic = response.responseJson;
+        
+        NSLog(@"%@", dic);
+        XCTAssert(response.responseJson);
+    }).catch(^(NSError *error){
+        
+        XCTAssert(NO, @"should be success");
+    }).always(^{
+        [ex fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
+}
+
+
 //- (void)testGET{
 //    id ex = [self expectationWithDescription:@""];
 //    

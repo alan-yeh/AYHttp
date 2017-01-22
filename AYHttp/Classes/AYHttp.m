@@ -74,13 +74,14 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
         serializer_encoding_mapping = [NSMutableDictionary new];
     });
     
-    
     AFHTTPRequestSerializer *serializer = [serializer_encoding_mapping objectForKey:@(encoding)];
     if (serializer == nil) {
         serializer = [AFHTTPRequestSerializer serializer];
         serializer.stringEncoding = encoding;
         [serializer_encoding_mapping setObject:serializer forKey:@(encoding)];
     }
+    
+    serializer.timeoutInterval = self.timeoutInterval;
     return serializer;
 }
 
@@ -147,52 +148,98 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
     return [NSSet setWithObjects:@"POST", @"PUT", nil];
 }
 
+- (NSString *)buildQueryParams:(NSDictionary<NSString *, id> *)params withEncoding:(NSStringEncoding)encoding{
+    NSMutableString *query = [NSMutableString new];
+    for (NSString *key in params) {
+        if (query.length) {
+            [query appendString:@"&"];
+        }
+        [query appendFormat:@"%@=%@", [key ay_URLEncodingWithEncoding:encoding], [[[params objectForKey:key] description] ay_URLEncodingWithEncoding:encoding]];
+    }
+    return query;
+}
+
+/// 处理path param
+- (NSString *)parsePathParams:(NSString *)urlString params:(NSDictionary *)params{
+    if ([urlString rangeOfString:@"{"].location == NSNotFound) {
+        return urlString;
+    }
+    
+    __block NSString *result = urlString;
+    
+    params.query.each(^(AYPair *param){
+        NSString *replacement = NSStringWithFormat(@"{%@}", param.key);
+        if ([result containsString:replacement]) {
+            result = [result stringByReplacingOccurrencesOfString:replacement withString:[param.value description]];
+        }
+    });
+    
+    return result;
+}
+
 - (AYPromise<NSMutableURLRequest *> *)parseRequest:(AYHttpRequest *)request{
     NSParameterAssert(request.method.length);
     NSParameterAssert(request.URLString.length);
+
+    NSString *URLString = [self parsePathParams:request.URLString params:request.pathParams];
+
+    NSURL *URL = [NSURL URLWithString:URLString relativeToURL:self.baseURL];
     
-    [request parseUrlParam];
-    
-    NSString *URLString = [[NSURL URLWithString:request.URLString relativeToURL:self.baseURL] absoluteString];
-    
+    URLString = [URL absoluteString];
     NSAssert(URLString.length, @"URLString is not valid");
+    
+    
+    NSString *query = [self buildQueryParams:request.queryParams withEncoding:request.encoding];
+    if (query.length) {
+        URLString = NSStringWithFormat(URL.query ? @"%@&%@" : @"%@?%@", URLString, query);
+    }
     
     return AYPromiseWith(^id{
         NSMutableURLRequest *urlRequest = nil;
         
         //找出上传文件的参数
-        AYQueryable *fileParams = request.params.query.findAll(^(AYPair *item){
+        AYQueryable *fileParams = request.bodyParams.query.findAll(^(AYPair *item){
             return [item.value isKindOfClass:[AYHttpFileParam class]];
         });
         
         //排除上传文件的参数
-        AYQueryable *parameters = request.params.query.exclude(fileParams);
+        AYQueryable *parameters = request.bodyParams.query.exclude(fileParams);
         
         if (!(!(fileParams.count && ![self.multipartMethods containsObject:request.method]))) {
             return NSErrorMake(nil, @"request method %@ can not append multipart data", request.method);
         }
         
         NSError *error;
-        if (fileParams.count) {
-            urlRequest = [self.session.requestSerializer multipartFormRequestWithMethod:request.method
-                                                                              URLString:URLString
-                                                                             parameters:parameters.toDictionary(nil)
-                                                              constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-                                                                  fileParams.each(^(AYPair *item){
-                                                                      AYHttpFileParam *param = item.value;
-                                                                      [formData appendPartWithFileData:param.data
-                                                                                                  name:item.key
-                                                                                              fileName:param.filename
-                                                                                              mimeType:@"application/octet-stream"];
-                                                                  });
-                                                              }
-                                                                                  error:&error];
+        AFHTTPRequestSerializer *serializer = [self serializerWithEncoding:request.encoding];
+
+        if (![serializer.HTTPMethodsEncodingParametersInURI containsObject:[request.method uppercaseString]]) {
+            if (fileParams.count) {
+                urlRequest = [serializer multipartFormRequestWithMethod:request.method
+                                                              URLString:URLString
+                                                             parameters:parameters.toDictionary(nil)
+                                              constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+                                                  fileParams.each(^(AYPair *item){
+                                                      AYHttpFileParam *param = item.value;
+                                                      [formData appendPartWithFileData:param.data
+                                                                                  name:item.key
+                                                                              fileName:param.filename
+                                                                              mimeType:@"application/octet-stream"];
+                                                  });
+                                              }
+                                                                  error:&error];
+            }else{
+                urlRequest = [serializer requestWithMethod:request.method
+                                                 URLString:URLString
+                                                parameters:parameters.toDictionary(nil)
+                                                     error:&error];
+            }
         }else{
-            urlRequest = [self.session.requestSerializer requestWithMethod:request.method
-                                                                 URLString:URLString
-                                                                parameters:request.params
-                                                                     error:&error];
+            urlRequest = [serializer requestWithMethod:request.method
+                                             URLString:URLString
+                                            parameters:nil
+                                                 error:&error];
         }
+        
         
         if (error) {
             return NSErrorMake(error, @"can not parse <AYHttpReqeust %p> to NSURLRequest", request);
@@ -224,14 +271,13 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
 
 
 - (AYPromise<AYHttpRequest *> *)executeRequest:(AYHttpRequest *)request{
-    return AYPromiseWith(^{
+    return [self parseRequest:request]
+    .thenPromise(^(NSURLRequest *URLRequest, AYResolve resolve){
+        
         AFHTTPRequestSerializer *serializer = [self serializerWithEncoding:request.encoding];
-        serializer.timeoutInterval = self.timeoutInterval;
         self.session.requestSerializer = serializer;
-        return request;
-    }).then(NSInvocationMake(self, @selector(parseRequest:)))
-    .thenPromise(^(NSMutableURLRequest *urlRequest, AYResolve resolve){
-        request.task = [self.session dataTaskWithRequest:urlRequest
+        
+        request.task = [self.session dataTaskWithRequest:URLRequest
                                           uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
                                               if (request.uploadProgress) {
                                                   request.uploadProgress(uploadProgress);
@@ -265,13 +311,13 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
 }
 
 - (AYPromise<AYHttpRequest *> *)downloadRequest:(AYHttpRequest *)request{
-    return AYPromiseWith(^{
+    return [self parseRequest:request]
+    .thenPromise(^(NSURLRequest *URLRequest, AYResolve resolve){
+        
         AFHTTPRequestSerializer *serializer = [self serializerWithEncoding:request.encoding];
-        serializer.timeoutInterval = self.timeoutInterval;
         self.session.requestSerializer = serializer;
-        return request;
-    }).then(NSInvocationMake(self, @selector(parseRequest:)))
-    .thenPromise(^(NSMutableURLRequest *URLRequest, AYResolve resolve){
+        
+        
         request.task = [self.session downloadTaskWithRequest:URLRequest
                                                     progress:^(NSProgress * _Nonnull downloadProgress) {
                                                         if (request.downloadProgress) {
