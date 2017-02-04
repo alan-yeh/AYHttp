@@ -14,7 +14,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface AYHttpRequest ()
-@property (nonatomic, retain) NSMutableDictionary<NSString *, id> *parameters;
 @property (nonatomic, retain) __kindof NSURLSessionTask *task;
 @end
 

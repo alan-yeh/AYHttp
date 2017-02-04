@@ -37,7 +37,7 @@ C_CONSTRUCTOR(HEAD)
 + (instancetype)DELETE:(NSString *)URLString;
 + (instancetype)HEAD:(NSString *)URLString;
 
-- (instancetype)initWithMethod:(NSString *)method URL:(NSString *)URLString andParams:(nullable NSDictionary<NSString *, id> *)params;
+- (instancetype)initWithMethod:(NSString *)method URL:(NSString *)URLString;
 
 /** download progress callback*/
 @property (nonatomic, copy) void (^downloadProgress)(NSProgress *);

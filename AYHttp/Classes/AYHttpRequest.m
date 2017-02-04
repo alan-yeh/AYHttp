@@ -54,7 +54,7 @@ C_CONSTRUCTOR_IMP(HEAD)
 //无参构造函数
 #define CONSTRUCTOR(METHOD) \
 + (instancetype)METHOD:(NSString *)URLString{ \
-    return [[self alloc] initWithMethod:@#METHOD URL:URLString andParams:nil]; \
+    return [[self alloc] initWithMethod:@#METHOD URL:URLString]; \
 }
 CONSTRUCTOR(GET)
 CONSTRUCTOR(POST)
@@ -63,12 +63,10 @@ CONSTRUCTOR(DELETE)
 CONSTRUCTOR(HEAD)
 #undef CONSTRUCTOR
 
-- (instancetype)initWithMethod:(NSString *)method URL:(NSString *)URLString andParams:(NSDictionary<NSString *,id> *)params{
+- (instancetype)initWithMethod:(NSString *)method URL:(NSString *)URLString{
     if (self = [self init]) {
         self.method = method;
         self.URLString = URLString;
-        [self.parameters setDictionary:params];
-        
     }
     return self;
 }
