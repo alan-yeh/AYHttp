@@ -10,6 +10,7 @@
 #import <AYPromise/AYPromise.h>
 #import <AYHttp/AYHttpRequest.h>
 #import <AYHttp/AYHttpResponse.h>
+#import <AYHttp/AYHttpRouter.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -68,6 +69,10 @@ typedef NS_ENUM(NSInteger, AYNetworkStatus) {
 // use config file to resume the download request
 - (AYPromise<AYFile *> *)suspendDownloadRequest:(AYHttpRequest *)request;
 - (AYPromise<AYHttpResponse *> *)resumeDownloadRequest:(AYHttpRequest *_Nullable*_Nullable)request withConfig:(AYFile *)configFile;
+@end
+
+@interface AYHttp (StaticRoute)
+- (void)registerUrlPattern:(NSString *)url forRouter:(Class)router;
 @end
 
 @protocol AYHttpDelegate <NSObject>

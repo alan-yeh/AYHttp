@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'AYHttp'
-  s.version          = '1.3.1'
+  s.version          = '1.4.0'
   s.summary          = 'Promise style HTTP client base on AFNetworking.'
 
   s.homepage         = 'https://github.com/alan-yeh/AYHttp'

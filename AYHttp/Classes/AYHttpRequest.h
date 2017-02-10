@@ -70,6 +70,13 @@ C_CONSTRUCTOR(HEAD)
 @property (nonatomic, readonly) AYHttpRequest *(^removeBodyParam)(NSString *key, ...);
 @property (nonatomic, readonly) AYHttpRequest *(^withBodyParam)(NSString *key, id value);
 @property (nonatomic, readonly) AYHttpRequest *(^withBodyParams)(NSDictionary<NSString *, id> *params);
+
+/**
+ * 获取参数
+ * 顺序：
+ * Query -> Body -> Path
+ */
+- (id)paramForKey:(NSString *)key;
 @end
 
 

@@ -14,6 +14,7 @@
 
 #import "AYHttpRequest.h"
 #import "AYHttp_Private.h"
+#import "AYHttpAction.h"
 
 
 #define C_CONSTRUCTOR_IMP(METHOD) \
@@ -194,7 +195,21 @@ NSArray *AYSupportedHTTPMethods(){
     };
 }
 
-
+- (id)paramForKey:(NSString *)key{
+    id result = [_queryParams objectForKey:key];
+    if (result) {
+        return result;
+    }
+    
+    result = [_bodyParams objectForKey:key];
+    if (result) {
+        return result;
+    }
+    
+    result = [_pathParams objectForKey:key];
+    
+    return result;
+}
 @end
 
 @implementation AYHttpRequest (Header)

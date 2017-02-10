@@ -27,6 +27,9 @@
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		E7B5040F1DD59794000EDD0D /* aaa.zip in Resources */ = {isa = PBXBuildFile; fileRef = E7B5040E1DD59794000EDD0D /* aaa.zip */; };
+		E7D129EF1E4D5E6E0057FFAF /* DetailsRouter.m in Sources */ = {isa = PBXBuildFile; fileRef = E7D129EE1E4D5E6E0057FFAF /* DetailsRouter.m */; };
+		E7D129FB1E4D70B00057FFAF /* DetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E7D129F91E4D70B00057FFAF /* DetailsViewController.m */; };
+		E7D129FC1E4D70B00057FFAF /* DetailsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E7D129FA1E4D70B00057FFAF /* DetailsViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +77,11 @@
 		DA3940AA13D1CF28AC4EB130 /* Pods-AYHttp_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AYHttp_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-AYHttp_Example/Pods-AYHttp_Example.release.xcconfig"; sourceTree = "<group>"; };
 		DA531FE2D784A1512971D691 /* Pods_AYHttp_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AYHttp_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E7B5040E1DD59794000EDD0D /* aaa.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = aaa.zip; sourceTree = "<group>"; };
+		E7D129ED1E4D5E6E0057FFAF /* DetailsRouter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetailsRouter.h; path = Plugins/DetailsRouter.h; sourceTree = "<group>"; };
+		E7D129EE1E4D5E6E0057FFAF /* DetailsRouter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DetailsRouter.m; path = Plugins/DetailsRouter.m; sourceTree = "<group>"; };
+		E7D129F81E4D70B00057FFAF /* DetailsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetailsViewController.h; path = Plugins/DetailsViewController.h; sourceTree = "<group>"; };
+		E7D129F91E4D70B00057FFAF /* DetailsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DetailsViewController.m; path = Plugins/DetailsViewController.m; sourceTree = "<group>"; };
+		E7D129FA1E4D70B00057FFAF /* DetailsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = DetailsViewController.xib; path = Plugins/DetailsViewController.xib; sourceTree = "<group>"; };
 		F742B42A645A4E469952A643 /* Pods-AYHttp_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AYHttp_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AYHttp_Tests/Pods-AYHttp_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -159,6 +167,7 @@
 		6003F593195388D20070C39A /* Example for AYHttp */ = {
 			isa = PBXGroup;
 			children = (
+				E7D129EC1E4D5E0A0057FFAF /* Plugins */,
 				1D2AD08B1D55C9A600994389 /* Services */,
 				1D2AD0871D55C95000994389 /* Models */,
 				6003F59C195388D20070C39A /* AYAppDelegate.h */,
@@ -223,6 +232,18 @@
 				34B337F088098834D43335BB /* Pods-AYHttp_Tests.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		E7D129EC1E4D5E0A0057FFAF /* Plugins */ = {
+			isa = PBXGroup;
+			children = (
+				E7D129ED1E4D5E6E0057FFAF /* DetailsRouter.h */,
+				E7D129EE1E4D5E6E0057FFAF /* DetailsRouter.m */,
+				E7D129F81E4D70B00057FFAF /* DetailsViewController.h */,
+				E7D129F91E4D70B00057FFAF /* DetailsViewController.m */,
+				E7D129FA1E4D70B00057FFAF /* DetailsViewController.xib */,
+			);
+			name = Plugins;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -319,6 +340,7 @@
 				1D07E0661D4B253700AAF96E /* Launch Screen.storyboard in Resources */,
 				E7B5040F1DD59794000EDD0D /* aaa.zip in Resources */,
 				6003F598195388D20070C39A /* InfoPlist.strings in Resources */,
+				E7D129FC1E4D70B00057FFAF /* DetailsViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -521,8 +543,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				1D2AD08A1D55C96E00994389 /* DBBook.m in Sources */,
+				E7D129EF1E4D5E6E0057FFAF /* DetailsRouter.m in Sources */,
 				6003F59E195388D20070C39A /* AYAppDelegate.m in Sources */,
 				6003F5A7195388D20070C39A /* AYViewController.m in Sources */,
+				E7D129FB1E4D70B00057FFAF /* DetailsViewController.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
 				1D2AD08E1D55C9BD00994389 /* DBServices.m in Sources */,
 			);
