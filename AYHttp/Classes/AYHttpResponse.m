@@ -13,13 +13,15 @@
 @implementation AYHttpResponse{
     NSData *_responseData;
     AYFile *_responseFile;
+    id _responseJson;
 }
 
-- (instancetype)initWithRequest:(AYHttpRequest *)request andData:(NSData *)responseData andFile:(AYFile *)responseFile{
+- (instancetype)initWithRequest:(AYHttpRequest *)request andData:(NSData *)responseData andFile:(AYFile *)responseFile andJson:(id)responseJson{
     if (self = [super init]) {
         self.request = request;
         _responseData = responseData;
         _responseFile = responseFile;
+        _responseJson = responseJson;
     }
     return self;
 }
@@ -46,6 +48,10 @@
 }
 
 - (id)responseJson{
+    if (_responseJson) {
+        return _responseJson;
+    }
+    
     if (!_responseData && !_responseFile) {
         return nil;
     }
@@ -56,7 +62,8 @@
             NSString *tempStr = [[NSString alloc] initWithData:_responseData encoding:self.request.encoding];
             data = [tempStr dataUsingEncoding:NSUTF8StringEncoding];
         }
-        return [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
+        _responseJson = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
+        return _responseJson;
     }else{
         NSLog(@"file data can not parse to json");
         return nil;

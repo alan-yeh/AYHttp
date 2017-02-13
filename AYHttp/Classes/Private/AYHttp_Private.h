@@ -21,7 +21,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface AYHttpResponse ()
 @property (nonatomic, retain) AYHttpRequest *request;
 
-- (instancetype)initWithRequest:(AYHttpRequest *)request andData:(nullable NSData *)responseData andFile:(nullable AYFile *)responseFile;
+- (instancetype)initWithRequest:(AYHttpRequest *)request
+                        andData:(nullable NSData *)responseData
+                        andFile:(nullable AYFile *)responseFile
+                        andJson:(nullable id)responseJson;
 @end
 
 @interface AFHTTPSessionManager ()

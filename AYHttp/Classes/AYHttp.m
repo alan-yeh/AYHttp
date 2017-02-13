@@ -307,11 +307,12 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
                 }else{
                     AYHttpResponse *httpResponse = [[AYHttpResponse alloc] initWithRequest:request
                                                                                    andData:nil
-                                                                                   andFile:nil];
+                                                                                   andFile:nil
+                                                                                   andJson:result];
                     resolve(httpResponse);
                 }
             };
-            [router performSelector:action.selector];
+            SuppressPerformSelectorLeakWarning([router performSelector:action.selector]);
         }else{
             AFHTTPRequestSerializer *serializer = [self serializerWithEncoding:request.encoding];
             self.session.requestSerializer = serializer;
@@ -330,7 +331,8 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
                                            completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
                                                AYHttpResponse *httpResponse = [[AYHttpResponse alloc] initWithRequest:request
                                                                                                               andData:responseObject
-                                                                                                              andFile:nil];
+                                                                                                              andFile:nil
+                                                                                                              andJson:nil];
                                                if ([self.delegate respondsToSelector:@selector(client:hasReturn:)]) {
                                                    AYPromise *promise = [self.delegate client:self hasReturn:httpResponse];
                                                    if (promise != nil) {
@@ -381,7 +383,8 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
                                                
                                                AYHttpResponse *httpResponse = [[AYHttpResponse alloc] initWithRequest:request
                                                                                                               andData:nil
-                                                                                                              andFile:[AYFile fileWithURL:filePath]];
+                                                                                                              andFile:[AYFile fileWithURL:filePath]
+                                                                                                              andJson:nil];
                                                if ([self.delegate respondsToSelector:@selector(client:hasReturn:)]) {
                                                    AYPromise *promise = [self.delegate client:self hasReturn:httpResponse];
                                                    if (promise != nil) {
@@ -432,7 +435,8 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
                                                       completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
                                                           AYHttpResponse *httpResponse = [[AYHttpResponse alloc] initWithRequest:downloadRequest
                                                                                                                          andData:nil
-                                                                                                                         andFile:[AYFile fileWithURL:filePath]];
+                                                                                                                         andFile:[AYFile fileWithURL:filePath]
+                                                                                                                         andJson:nil];
                                                           if (error) {
                                                               resolve(NSErrorWithUserInfo(@{AYHttpErrorResponseKey: httpResponse,
                                                                                             AYPromiseInternalErrorsKey: error}, @"下载失败"));
@@ -472,7 +476,9 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
     
     for (AYHttpAction *action in actions) {
         id exist = [self.staticRoute objectForKey:action.urlPattern];
-        NSAssert(!exist, @"url pattern 冲突: \n1. %@\n2. %@", exist, action);
+        if (exist) {
+            NSAssert(NO, @"url pattern 冲突: \n1. %@\n2. %@", exist, action);
+        }
         [self.staticRoute setObject:action forKey:action.urlPattern];
     }
 }
