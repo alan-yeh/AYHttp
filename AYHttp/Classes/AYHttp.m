@@ -46,6 +46,14 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
         _instance = [[AYHttp alloc] _init];
         _instance.timeoutInterval = 10;
         _instance.session = [[AFHTTPSessionManager alloc] initWithBaseURL:nil];
+//        [_instance.session setTaskWillPerformHTTPRedirectionBlock:^NSURLRequest * _Nonnull(NSURLSession * _Nonnull session, NSURLSessionTask * _Nonnull task, NSURLResponse * _Nonnull response, NSURLRequest * _Nonnull request) {
+//            NSLog(@"redirect: %@, header: %@", request, request.allHTTPHeaderFields);
+//            
+//            NSMutableURLRequest *newRequest = request.mutableCopy;
+//            [newRequest setValue:<#(nullable NSString *)#> forHTTPHeaderField:<#(nonnull NSString *)#>]
+//            
+//            return request;
+//        }];
         _instance.session.completionQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         _instance.session.securityPolicy.allowInvalidCertificates = YES;
         _instance.session.securityPolicy.validatesDomainName = NO;
@@ -269,23 +277,25 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
             return NSErrorMake(error, @"can not parse <AYHttpReqeust %p> to NSURLRequest", request);
         }
     
-        
-        NSString *domain = [NSURL URLWithString:URLString].host;
+//        NSURL *url = [NSURL URLWithString:URLString];
+//        NSString *domain = url.host;
+//        NSString *path = url.path;
         // process cookie header
-        NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+//        NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
         
         
-        NSArray<NSHTTPCookie *> *cookies = cookieStorage.cookies.query
-        .findAll(^(NSHTTPCookie *cookie){
-            return [cookie.domain isEqualToString:domain];
-        })
-        .include([NSHTTPCookie cookieWithProperties:request.cookies])
-        .toArray();
+//        NSArray<NSHTTPCookie *> *cookies = cookieStorage.cookies.query
+//        .findAll(^BOOL(NSHTTPCookie *cookie){
+//            
+//            return [cookie.domain isEqualToString:domain] && [path hasPrefix:cookie.path];
+//        })
+//        .include([NSHTTPCookie cookieWithProperties:request.cookies])
+//        .toArray();
         
         //process other header
-        NSDictionary<NSString *, NSString *> *headerProperties = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
+//        NSDictionary<NSString *, NSString *> *headerProperties = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
         
-        headerProperties.query.include(self.headers).include(request.headers).each(^(AYPair *item){
+        self.headers.query.include(request.headers).each(^(AYPair *item){
             [urlRequest setValue:item.value forHTTPHeaderField:item.key];
         });
         
@@ -342,7 +352,9 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
                                                }
                                                
                                                if (error) {
-                                                   resolve(NSErrorWithUserInfo(@{AYHttpErrorResponseKey: httpResponse}, @"网络请求失败"));
+                                                   resolve(NSErrorWithUserInfo(@{AYHttpErrorResponseKey: httpResponse,
+                                                                                 AYPromiseInternalErrorsKey: error},
+                                                                               @"网络请求失败"));
                                                }else{
                                                    resolve(httpResponse);
                                                }

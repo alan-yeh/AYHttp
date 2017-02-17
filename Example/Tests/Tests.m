@@ -17,6 +17,36 @@
 
 @implementation Tests
 
+- (void)testLogin{
+    id ex = [self expectationWithDescription:@""];
+    
+//    AYHttpRequest *request = AYGETRequest(@"https://ssl.codesync.cn/mobilework/login/login").withQueryParams(@{
+//                                                                                                    @"j_username": @"18878911678",
+//                                                                                                    @"j_password": @"Lzz!1234",
+//                                                                                                    @"device_id": @"2310BA85-0539-4412-AAB5-2132BF7CB79C",
+//                                                                                                    @"device_type": @"iOS"
+//                                                                                                    });
+    
+    
+    AYHttpRequest *request = AYGETRequest(@"https://ssl.codesync.cn/mobilework/login/login").withQueryParams(@{
+                                                                                                               @"j_username": @"admin",
+                                                                                                               @"j_password": @"11"
+                                                                                                               });
+    [AYHttpClient executeRequest:request].then(^(AYHttpResponse *response){
+        NSLog(@"%@", response.responseJson);
+        return [AYHttpClient executeRequest:AYGETRequest(@"https://ssl.codesync.cn/mobile-oa/api/authorize")];
+    }).then(^(AYHttpResponse *response){
+        
+        NSLog(@"%@", response.responseJson);
+    }).catch(^(NSError *error){
+        NSLog(@"%@", error);
+    }).always(^{
+        [ex fulfill];
+    });;
+    
+    [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
+}
+
 //- (void)testParams{
 //    AYHttpRequest *request = AYGETRequest(@"http://192.168.9.235:7001/mobilework/login/login").withQueryParams(@{@"j_username": @"admin", @"j_password": @"11"});
 //    
