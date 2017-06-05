@@ -380,23 +380,19 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
                                                     }
                                                  destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
                                                      if (response.suggestedFilename.length > 0) {
-                                                         NSMutableString *suggestedFilename = [NSMutableString stringWithString:response.suggestedFilename];
-                                                         [suggestedFilename replaceOccurrencesOfString:@"+"
-                                                                                 withString:@" "
-                                                                                    options:NSLiteralSearch
-                                                                                      range:NSMakeRange(0, [suggestedFilename length])];
-                                                         NSString *decodedFilename = [suggestedFilename stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                                                         return [NSURL fileURLWithPath:[[targetPath.path stringByDeletingLastPathComponent] stringByAppendingPathComponent:decodedFilename]];
+                                                         NSData *temp = [response.suggestedFilename dataUsingEncoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingISOLatin1)];
+                                                         NSString *suggestedFilename = [[NSString alloc] initWithData:temp encoding:NSUTF8StringEncoding];
+                                                         return [NSURL fileURLWithPath:[[targetPath.path stringByDeletingLastPathComponent] stringByAppendingPathComponent:suggestedFilename]];
                                                      }else{
                                                          return targetPath;
                                                      }
                                                  }
                                            completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
-                                               
                                                AYHttpResponse *httpResponse = [[AYHttpResponse alloc] initWithRequest:request
                                                                                                               andData:nil
                                                                                                               andFile:[AYFile fileWithURL:filePath]
                                                                                                               andJson:nil];
+                                               
                                                if ([self.delegate respondsToSelector:@selector(client:hasReturn:)]) {
                                                    AYPromise *promise = [self.delegate client:self hasReturn:httpResponse];
                                                    if (promise != nil) {
