@@ -39,6 +39,8 @@ typedef NS_ENUM(NSInteger, AYNetworkStatus) {
 @property (nonatomic, assign, readonly) AYNetworkStatus currentNetworkStatus;
 
 @property (nonatomic, assign) NSTimeInterval timeoutInterval; /**< default 10s */
+
+@property (nonatomic, readonly) AYHttp *(^withQueryParam)(NSString *key, _Nullable id value); /**< add shared query param. send with every request. */
 @end
 
 /**

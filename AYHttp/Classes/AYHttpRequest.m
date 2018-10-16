@@ -52,6 +52,8 @@ C_CONSTRUCTOR_IMP(HEAD)
     return self;
 }
 
+#define PLUS(a, b) (a + b)
+
 //无参构造函数
 #define CONSTRUCTOR(METHOD) \
 + (instancetype)METHOD:(NSString *)URLString{ \
@@ -63,6 +65,7 @@ CONSTRUCTOR(PUT)
 CONSTRUCTOR(DELETE)
 CONSTRUCTOR(HEAD)
 #undef CONSTRUCTOR
+
 
 - (instancetype)initWithMethod:(NSString *)method URL:(NSString *)URLString{
     if (self = [self init]) {

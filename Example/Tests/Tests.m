@@ -28,12 +28,34 @@
 //                                                                                                    @"device_type": @"iOS"
 //                                                                                                    });
     
-    AYHttpRequest *request = AYGETRequest(@"http://archives.codesync.cn/archives/api/releases/download/300a8878-6a3c-4b98-a194-69e639a43568");
-    [AYHttpClient downloadRequest:request].then(^(AYHttpResponse *resp){
-        NSLog(@"%@", resp.responseFile.name);
-    }).always(^{
-        [ex fulfill];
+    AYHttpClient.baseURL = [NSURL URLWithString:@"http://121.42.204.231:8080"];
+    
+    AYHttpRequest *request = [AYHttpRequest POST:@"/eps/api/auth/login.do"]
+    .withBodyParams(@{
+                      @"user_code": @"jiawei",
+                      @"user_pwd": @"53A782F0ABAFA2E2B6ED5F39E056A1CF"
+                      });
+    
+    [AYHttpClient executeRequest:request].then(^(AYHttpResponse *resp){
+        NSDictionary *json = resp.responseJson;
+        if ([json[@"state"] integerValue] == 10) {
+            AYHttpClient.withQueryParam(@"token", json[@"result"]);
+            return [AYHttpClient executeRequest: AYPOSTRequest(@"/eps/api/staff/getstaffinfo.do")];
+        } else{
+            @throw NSErrorMake(nil, @"登录失败");
+        }
+    }).then(^(AYHttpResponse *resp){
+         NSLog(@"%@", resp.responseString);
+    }).then(^(NSError *error){
+        NSLog(@"%@", error.localizedDescription);
     });
+//    
+//    AYHttpRequest *request = AYGETRequest(@"http://archives.codesync.cn/archives/api/releases/download/300a8878-6a3c-4b98-a194-69e639a43568");
+//    [AYHttpClient downloadRequest:request].then(^(AYHttpResponse *resp){
+//        NSLog(@"%@", resp.responseFile.name);
+//    }).always(^{
+//        [ex fulfill];
+//    });
     [self waitForExpectationsWithTimeout:TIME_OUT handler:nil];
     
 //    AYHttpRequest *request = AYGETRequest(@"https://ssl.codesync.cn/mobilework/login/login").withQueryParams(@{

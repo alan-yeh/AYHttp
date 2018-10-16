@@ -30,11 +30,13 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
 @implementation AYHttp{
     NSMutableDictionary *_cookies;
     NSMutableDictionary *_headers;
+    NSMutableDictionary *_queryParams;
 }
 - (instancetype)_init{
     if (self = [super init]) {
         _cookies = [NSMutableDictionary new];
         _headers = [NSMutableDictionary new];
+        _queryParams = [NSMutableDictionary new];
     }
     return self;
 }
@@ -46,14 +48,6 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
         _instance = [[AYHttp alloc] _init];
         _instance.timeoutInterval = 10;
         _instance.session = [[AFHTTPSessionManager alloc] initWithBaseURL:nil];
-//        [_instance.session setTaskWillPerformHTTPRedirectionBlock:^NSURLRequest * _Nonnull(NSURLSession * _Nonnull session, NSURLSessionTask * _Nonnull task, NSURLResponse * _Nonnull response, NSURLRequest * _Nonnull request) {
-//            NSLog(@"redirect: %@, header: %@", request, request.allHTTPHeaderFields);
-//            
-//            NSMutableURLRequest *newRequest = request.mutableCopy;
-//            [newRequest setValue:<#(nullable NSString *)#> forHTTPHeaderField:<#(nonnull NSString *)#>]
-//            
-//            return request;
-//        }];
         _instance.session.completionQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         _instance.session.securityPolicy.allowInvalidCertificates = YES;
         _instance.session.securityPolicy.validatesDomainName = NO;
@@ -104,6 +98,18 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
 - (NSMutableDictionary *)staticRoute{
     return _staticRoute ?: (_staticRoute = [NSMutableDictionary new]);
 }
+
+- (AYHttp * _Nonnull (^)(NSString * _Nonnull, id _Nullable))withQueryParam{
+    return ^(NSString *key, id value){
+        if (value) {
+            _queryParams[key] = value;
+        } else {
+            [_queryParams removeObjectForKey:key];
+        }
+        return self;
+    };
+}
+
 @end
 
 @implementation AYHttp (Cookies)
@@ -220,8 +226,10 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
     URLString = [URL absoluteString];
     NSAssert(URLString.length, @"URLString is not valid");
     
+    NSMutableDictionary *queryParams = [NSMutableDictionary dictionaryWithDictionary:request.queryParams];
+    [queryParams setDictionary:_queryParams];
     
-    NSString *query = [self buildQueryParams:request.queryParams withEncoding:request.encoding];
+    NSString *query = [self buildQueryParams:queryParams withEncoding:request.encoding];
     if (query.length) {
         URLString = NSStringWithFormat(URL.query ? @"%@&%@" : @"%@?%@", URLString, query);
     }
@@ -381,7 +389,7 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
                                                  destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
                                                      if (response.suggestedFilename.length > 0) {
                                                          NSData *temp = [response.suggestedFilename dataUsingEncoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingISOLatin1)];
-                                                         NSString *suggestedFilename = [[NSString alloc] initWithData:temp encoding:NSUTF8StringEncoding];
+                                                         NSString *suggestedFilename = [[NSString alloc] initWithData:temp encoding:request.encoding];
                                                          return [NSURL fileURLWithPath:[[targetPath.path stringByDeletingLastPathComponent] stringByAppendingPathComponent:suggestedFilename]];
                                                      }else{
                                                          return targetPath;
