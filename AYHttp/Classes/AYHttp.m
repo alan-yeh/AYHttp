@@ -227,7 +227,7 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
     NSAssert(URLString.length, @"URLString is not valid");
     
     NSMutableDictionary *queryParams = [NSMutableDictionary dictionaryWithDictionary:request.queryParams];
-    [queryParams setDictionary:_queryParams];
+    [queryParams addEntriesFromDictionary:_queryParams];
     
     NSString *query = [self buildQueryParams:queryParams withEncoding:request.encoding];
     if (query.length) {
