@@ -12,7 +12,6 @@
 #import <AYCategory/AYCategory.h>
 #import <AYQuery/AYQuery.h>
 #import "AYHttp_Private.h"
-#import "AYHttpAction.h"
 
 NSString const *AYHttpReachabilityChangedNotification = @"AYHttpReachabilityChangedNotification";
 NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
@@ -315,60 +314,42 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
 - (AYPromise<AYHttpRequest *> *)executeRequest:(AYHttpRequest *)request{
     return [self parseRequest:request]
     .thenPromise(^(NSURLRequest *URLRequest, AYResolve resolve){
-        AYHttpAction *action = [self.staticRoute objectForKey:URLRequest.URL.absoluteString];
-        if (action) {
-            AYHttpRouter *router = [[action.router alloc] init];
-            router.request = request;
-            router.response = ^(NSDictionary *result, NSError *error){
-                if (error) {
-                    resolve(error);
-                }else{
-                    AYHttpResponse *httpResponse = [[AYHttpResponse alloc] initWithRequest:request
-                                                                                   andData:nil
-                                                                                   andFile:nil
-                                                                                   andJson:result];
-                    resolve(httpResponse);
-                }
-            };
-            SuppressPerformSelectorLeakWarning([router performSelector:action.selector]);
-        }else{
-            AFHTTPRequestSerializer *serializer = [self serializerWithEncoding:request.encoding];
-            self.session.requestSerializer = serializer;
-            
-            request.task = [self.session dataTaskWithRequest:URLRequest
-                                              uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
-                                                  if (request.uploadProgress) {
-                                                      request.uploadProgress(uploadProgress);
-                                                  }
+        AFHTTPRequestSerializer *serializer = [self serializerWithEncoding:request.encoding];
+        self.session.requestSerializer = serializer;
+        
+        request.task = [self.session dataTaskWithRequest:URLRequest
+                                          uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
+                                              if (request.uploadProgress) {
+                                                  request.uploadProgress(uploadProgress);
                                               }
-                                            downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
-                                                if (request.downloadProgress) {
-                                                    request.downloadProgress(downloadProgress);
-                                                }
+                                          }
+                                        downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+                                            if (request.downloadProgress) {
+                                                request.downloadProgress(downloadProgress);
                                             }
-                                           completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-                                               AYHttpResponse *httpResponse = [[AYHttpResponse alloc] initWithRequest:request
-                                                                                                              andData:responseObject
-                                                                                                              andFile:nil
-                                                                                                              andJson:nil];
-                                               if ([self.delegate respondsToSelector:@selector(client:hasReturn:)]) {
-                                                   AYPromise *promise = [self.delegate client:self hasReturn:httpResponse];
-                                                   if (promise != nil) {
-                                                       resolve(promise);
-                                                       return;
-                                                   }
+                                        }
+                                       completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+                                           AYHttpResponse *httpResponse = [[AYHttpResponse alloc] initWithRequest:request
+                                                                                                          andData:responseObject
+                                                                                                          andFile:nil
+                                                                                                          andJson:nil];
+                                           if ([self.delegate respondsToSelector:@selector(client:hasReturn:)]) {
+                                               AYPromise *promise = [self.delegate client:self hasReturn:httpResponse];
+                                               if (promise != nil) {
+                                                   resolve(promise);
+                                                   return;
                                                }
-                                               
-                                               if (error) {
-                                                   resolve(NSErrorWithUserInfo(@{AYHttpErrorResponseKey: httpResponse,
-                                                                                 AYPromiseInternalErrorsKey: error},
-                                                                               @"网络请求失败"));
-                                               }else{
-                                                   resolve(httpResponse);
-                                               }
-                                           }];
-            [request.task resume];
-        }
+                                           }
+                                           
+                                           if (error) {
+                                               resolve(NSErrorWithUserInfo(@{AYHttpErrorResponseKey: httpResponse,
+                                                                             AYPromiseInternalErrorsKey: error},
+                                                                           @"网络请求失败"));
+                                           }else{
+                                               resolve(httpResponse);
+                                           }
+                                       }];
+        [request.task resume];
     });
 }
 
@@ -484,19 +465,4 @@ NSString const *AYHttpErrorResponseKey = @"AYHttpErrorResponseKey";
         [task cancel];
     }
 }
-@end
-
-@implementation AYHttp (StaticRoute)
-- (void)registerUrlPattern:(NSString *)url forRouter:(Class)router{
-    NSArray *actions = [AYHttpAction actionsInRouter:router forUrlPattern:url];
-    
-    for (AYHttpAction *action in actions) {
-        id exist = [self.staticRoute objectForKey:action.urlPattern];
-        if (exist) {
-            NSAssert(NO, @"url pattern 冲突: \n1. %@\n2. %@", exist, action);
-        }
-        [self.staticRoute setObject:action forKey:action.urlPattern];
-    }
-}
-
 @end

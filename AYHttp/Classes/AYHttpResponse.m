@@ -30,7 +30,7 @@
     return self.request.task.response;
 }
 
-- (NSInteger)responseStatus{
+- (NSInteger)statusCode{
     NSHTTPURLResponse *response = (NSHTTPURLResponse *)self.request.task.response;
     if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
         return response.statusCode;

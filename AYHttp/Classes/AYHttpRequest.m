@@ -14,7 +14,6 @@
 
 #import "AYHttpRequest.h"
 #import "AYHttp_Private.h"
-#import "AYHttpAction.h"
 
 
 #define C_CONSTRUCTOR_IMP(METHOD) \

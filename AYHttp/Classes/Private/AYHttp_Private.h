@@ -10,7 +10,6 @@
 #import <AFNetworking/AFNetworking.h>
 #import "AYHttpRequest.h"
 #import "AYHttpResponse.h"
-#import "AYHttpRouter.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,13 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
                                          success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
                                          failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure;
 @property (readwrite, nonatomic, strong) NSURL *baseURL;
-@end
-
-@interface AYHttpRouter ()
-
-@property (nonatomic, retain) AYHttpRequest *request;
-@property (nonatomic, copy) void (^response)(NSDictionary *_Nullable result, NSError *_Nullable error);
-
 @end
 
 NS_ASSUME_NONNULL_END
