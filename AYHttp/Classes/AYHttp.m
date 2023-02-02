@@ -7,7 +7,7 @@
 //
 
 #import "AYHttp.h"
-#import <AFNetworking/AFNetworking.h>
+#import <AFNetworking/AFHTTPSessionManager.h>
 #import <AYFile/AYFile.h>
 #import <AYCategory/AYCategory.h>
 #import <AYQuery/AYQuery.h>

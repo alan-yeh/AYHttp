@@ -20,8 +20,11 @@ Pod::Spec.new do |s|
 
   s.source_files = 'AYHttp/Classes/**/*'
   s.public_header_files = 'AYHttp/Classes/*.h'
-
-  s.dependency 'AFNetworking'
+  
+  s.dependency 'AFNetworking/Reachability', "~> 3.0"
+  s.dependency 'AFNetworking/Serialization', "~> 3.0"
+  s.dependency 'AFNetworking/Security', "~> 3.0"
+  s.dependency 'AFNetworking/NSURLSession', "~> 3.0"
   s.dependency 'AYPromise'
   s.dependency 'AYFile'
   s.dependency 'AYQuery'
